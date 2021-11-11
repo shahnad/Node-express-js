@@ -54,6 +54,7 @@ const fileFilter = (req, file, cb) => {
     cb(null, false);
   }
 };
+
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -76,4 +77,5 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
+app.listen(4000)
 module.exports = app;

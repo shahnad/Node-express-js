@@ -5,7 +5,7 @@ module.exports = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'next-js'
+    database: 'awesome_pen'
 }).promise()
 
 
