@@ -12,6 +12,9 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const uploadRouter = require('./routes/upload');
+const bookRouter = require('./routes/books')
+const passport = require('passport')
+const facebookStrategy = require('passport-facebook').Strategy
 const app = express();
 
 // view engine setup
@@ -55,11 +58,34 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+
+
+
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/upload', uploadRouter);
+app.use('/book', bookRouter);
+
+app.use(passport.initialize());
+
+app.use(passport.session());
+
+passport.use(new facebookStrategy({
+
+  // pull in our app id and secret from our auth.js file
+  clientID: "603496006962121",
+  clientSecret: "c63a6f6f8189ed75b5958b2c0c0e7341",
+  callbackURL: "http://localhost:4000/auth/facebook/callback"
+
+},// facebook will send back the token and profile
+   (token, refreshToken, profile, done) =>{
+
+    console.log(profile)
+    return done(null, profile)
+  }));
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
