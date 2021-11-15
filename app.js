@@ -1,3 +1,4 @@
+require('dotenv').config()
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -6,6 +7,9 @@ const logger = require('morgan');
 const cors = require('cors')
 const multer = require('multer');
 const session = require('express-session')
+let passport = require('passport')
+
+const port = process.env.RUNNING_PORT || 4000;
 
 const connection = require('./db/connection')
 const indexRouter = require('./routes/index');
@@ -13,27 +17,9 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const uploadRouter = require('./routes/upload');
 const bookRouter = require('./routes/books')
-const passport = require('passport')
-const facebookStrategy = require('passport-facebook').Strategy
-const app = express();
+require('./passport/index')
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 connection.connect()
-app.use(cors())
-app.use(logger('dev'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use("/images", express.static(path.join(__dirname, 'images')));
-app.use(session({
-  secret: 'My Secret Key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
-}))
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -58,7 +44,24 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// view engine setup
+const app = express();
 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+app.use(cors())
+app.use(logger('dev'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use("/images", express.static(path.join(__dirname, 'images')));
+app.use(session({
+  secret: 'My Secret Key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}))
 
 
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -69,22 +72,9 @@ app.use('/upload', uploadRouter);
 app.use('/book', bookRouter);
 
 app.use(passport.initialize());
-
 app.use(passport.session());
 
-passport.use(new facebookStrategy({
 
-  // pull in our app id and secret from our auth.js file
-  clientID: "603496006962121",
-  clientSecret: "c63a6f6f8189ed75b5958b2c0c0e7341",
-  callbackURL: "http://localhost:4000/auth/facebook/callback"
-
-},// facebook will send back the token and profile
-   (token, refreshToken, profile, done) =>{
-
-    console.log(profile)
-    return done(null, profile)
-  }));
 
 
 // catch 404 and forward to error handler
@@ -103,5 +93,7 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-app.listen(4000)
+
+
+app.listen(port, console.log(`port running on ${port}`))
 module.exports = app;

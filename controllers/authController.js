@@ -64,6 +64,11 @@ exports.signUp = (req, res, next) => {
 
 exports.logout = (req, res, next) => {
     req.session.destroy()
+    req.session = null;
+    req.logout();
     res.status(200).send({ message: 'Logged Out Successfully !', status: 200 })
 }
 
+exports.successLogin = (req, res, next) => {
+    res.status(200).send({ message: 'Logged In Successfully !', status: 200 })
+}
