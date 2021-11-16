@@ -1,30 +1,34 @@
 const express = require('express');
 const passport = require('passport')
 const isAuth = require('../middleware/is-auth')
+const authCtrl = require('../controllers/authController')
 
 const router = express.Router();
 
-const authCtrl = require('../controllers/authController')
-/*  POST LOGIN */
+//   login post
 router.post('/login', authCtrl.login);
 
-/* POST SIGNUP */
+//  sign up post 
 router.post('/signup', authCtrl.signUp);
 
-/* POST SIGNUP */
+//  logout  
 router.post('/logout', authCtrl.logout);
 
+// facebook
 router.get('/facebook', passport.authenticate('facebook', { scope: 'email,user_photos' }));
 
+// facebook callback
 router.get('/facebook/callback',
     passport.authenticate('facebook', {
         successRedirect: '/profile',
         failureRedirect: '/'
     }));
 
+// google
 router.get('/google',
     passport.authenticate('google', { scope: ['email', 'profile'] }));
 
+// login fails
 router.get('/login/failure', (req, res, next) => {
     res.status(401).send({
         data: {},
@@ -32,15 +36,16 @@ router.get('/login/failure', (req, res, next) => {
     })
 })
 
-router.get('/login/success', isAuth ,authCtrl.successLogin)
-
+// google callback
 router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: '/auth/login/failure' }),
-    function (req, res) { res.redirect('auth/login/success') })
+    passport.authenticate('google', { failureRedirect: '/login/failure' }),
+    function (req, res) { res.redirect('/login/success') })
 
+// instagram
 router.get('/instagram',
     passport.authenticate('instagram'));
 
+// instagram callback
 router.get('/instagram/callback',
     passport.authenticate('instagram', { successRedirect: '/', failureRedirect: '/auth/login', }));
 

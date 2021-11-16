@@ -13,24 +13,21 @@ passport.deserializeUser((user, done) => {
     done(null, user)
 });
 
-
 // FACEBOOK
 passport.use(new facebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: "http://localhost:4000/auth/facebook/callback"
+    callbackURL:process.env.FACEBOOK_CALLBACK_URL
 
 }, (token, refreshToken, profile, done) => {
     return done(null, profile)
 }));
 
-
-
 // GOOGLE
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:4000/auth/google/callback",
+    callbackURL: process.env.GOOGLE_CALLBACK_URL,
     passReqToCallback: true
 }, (request, accessToken, refreshToken, profile, done) => {
     return done(null, profile);
@@ -41,7 +38,7 @@ passport.use(new GoogleStrategy({
 passport.use(new InstagramStrategy({
     clientID: process.env.INSTAGRAM_CLIENT_ID,
     clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-    callbackURL: "http://localhost:4000/auth/instagram/callback"
+    callbackURL: process.env.INSTAGRAM_CALLBACK_URL
 },
     function (accessToken, refreshToken, profile, done) {
         return done(null, user);

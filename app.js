@@ -8,16 +8,14 @@ const cors = require('cors')
 const multer = require('multer');
 const session = require('express-session')
 let passport = require('passport')
-
 const port = process.env.RUNNING_PORT || 4000;
-
 const connection = require('./db/connection')
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const uploadRouter = require('./routes/upload');
 const bookRouter = require('./routes/books')
-require('./passport/index')
+
 
 connection.connect()
 
@@ -46,7 +44,8 @@ const fileFilter = (req, file, cb) => {
 
 // view engine setup
 const app = express();
-
+app.use(passport.initialize());
+require('./passport/index')
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(cors())
@@ -70,12 +69,7 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/upload', uploadRouter);
 app.use('/book', bookRouter);
-
-app.use(passport.initialize());
 app.use(passport.session());
-
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -92,8 +86,6 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-
 
 app.listen(port, console.log(`port running on ${port}`))
 module.exports = app;
