@@ -19,10 +19,11 @@ router.get('/facebook', passport.authenticate('facebook', { scope: 'email,user_p
 
 // facebook callback
 router.get('/facebook/callback',
-    passport.authenticate('facebook', {
-        successRedirect: '/profile',
-        failureRedirect: '/'
-    }));
+    passport.authenticate('facebook', { failureRedirect: '/login/failure' }),
+    function (req, res) {
+        res.redirect('/login/success')
+    }
+);
 
 // google
 router.get('/google',
@@ -39,7 +40,9 @@ router.get('/login/failure', (req, res, next) => {
 // google callback
 router.get('/google/callback',
     passport.authenticate('google', { failureRedirect: '/login/failure' }),
-    function (req, res) { res.redirect('/login/success') })
+    function (req, res) {
+      res.redirect('/login/success')
+    })
 
 // instagram
 router.get('/instagram',

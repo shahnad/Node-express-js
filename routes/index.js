@@ -7,4 +7,6 @@ router.get('/', function(req, res, next) {
 });
 router.get('/login/success' ,authCtrl.successLogin)
 
+router.get('/login/success/facebook' ,authCtrl.successFbLogin)
+
 module.exports = router;

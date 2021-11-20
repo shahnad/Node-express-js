@@ -9,9 +9,9 @@ module.exports = class userModel {
 
     // signup user
     userSignUp(data) {
-        const { email, password, gender, profile_pic } = data
-        const query = `INSERT INTO users (email, password,profile_pic, gender, created_at, updated_at) VALUES (?,?,?,?,?,?)`
-        return db.execute(query, [email, password, profile_pic, gender, new Date(), new Date()])
+        const { email, password, profile_pic ,username} = data
+        const query = `INSERT INTO users (email, password,profile_pic, username, created_at, updated_at) VALUES (?,?,?,?,?,?)`
+        return db.execute(query, [email, password, profile_pic, username, new Date(), new Date()])
     }
 
     // update user
@@ -50,6 +50,12 @@ module.exports = class userModel {
         const { page, limit } = params
         const query = `SELECT * FROM users LIMIT ? OFFSET ?`
         return db.execute(query, [limit, page])
+    }
+
+    createUserviagoogle = (params) => {
+        const { name, picture, email } = params
+        const query = `INSERT INTO users (email, username,profile_pic, created_at, updated_at) VALUES (?,?,?,?,?)`
+        return db.execute(query, [email, name, picture, new Date(), new Date()])
     }
 
 }

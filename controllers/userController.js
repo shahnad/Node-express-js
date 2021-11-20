@@ -87,3 +87,6 @@ exports.deleteUser = (req, res, next) => {
     }
 }
 
+exports.createUser = (req, res, next) => {
+    console.log(req.body, "2222222222222222222222");
+}

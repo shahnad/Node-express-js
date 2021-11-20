@@ -13,7 +13,6 @@ exports.login = (req, res, next) => {
     auth.findOne({ email }).then(([rows, fieldData]) => {
         if (rows.length) {
             const userData = { ...rows[0] }
-            console.log(password, 'password', userData.password);
             bcrypt.compare(password, userData.password)
                 .then((respose) => {
                     if (respose) {
@@ -38,17 +37,20 @@ exports.login = (req, res, next) => {
 
 // signup
 exports.signUp = (req, res, next) => {
-    const { email, password, gender } = req.body
+    const { email, password, username } = req.body
     const imageFile = req.file || {}
-    const imagePath = `/images/${imageFile?.filename}`
+    const imagePath = imageFile?.filename ? `/images/${imageFile?.filename}` : ''
     auth.findOne({ email: email }).then(([rows, fieldData]) => {
         if (rows.length) {
             res.status(404).send({ data: [], message: "Email is already exist. Please Try with another email" })
         } else {
             return bcrypt.hash(password, 12).then((hash) => {
-                user.userSignUp({ email, password: hash, gender, profile_pic: imagePath }).then(([resAray, fieldResData]) => {
+                user.userSignUp({ email, password: hash, profile_pic: imagePath, username }).then(([resAray, fieldResData]) => {
+                  const token = jwt.sign({ email }, 'my_secret_key', { expiresIn: '9h' })
+                  req.session.isLoggedIn = true
+                  req.session.userData = { email, password, username }
                     res.status(200).send({
-                        message: 'User Created Successfully !', data: { email, password: hash, gender, profile_pic: imagePath }, status: 200
+                        message: 'User Created Successfully !', data: { email, username, password: hash, profile_pic: imagePath,token }, status: 200
                     })
                 }).catch((error) => {
                     res.status(500).send({ error: error, status: 500 })
@@ -70,5 +72,10 @@ exports.logout = (req, res, next) => {
 }
 
 exports.successLogin = (req, res, next) => {
+    res.redirect('/')
+    res.status(200).send({ message: 'Logged In Successfully !', status: 200 })
+}
+
+exports.successFbLogin = (req, res, next) => {
     res.status(200).send({ message: 'Logged In Successfully !', status: 200 })
 }
