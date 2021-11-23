@@ -9,7 +9,7 @@ module.exports = class userModel {
 
     // signup user
     userSignUp(data) {
-        const { email, password, profile_pic ,username} = data
+        const { email, password, profile_pic, username } = data
         const query = `INSERT INTO users (email, password,profile_pic, username, created_at, updated_at) VALUES (?,?,?,?,?,?)`
         return db.execute(query, [email, password, profile_pic, username, new Date(), new Date()])
     }
@@ -58,4 +58,9 @@ module.exports = class userModel {
         return db.execute(query, [email, name, picture, new Date(), new Date()])
     }
 
+    followUser = (params) => {
+        const { follower_id, followed_id } = params
+        const query = `INSERT INTO followers (follower_id, followed_id, created_at, updated_at) VALUES (?,?,?,?)`
+        return db.execute(query, [follower_id, followed_id, new Date(), new Date()])
+    }
 }

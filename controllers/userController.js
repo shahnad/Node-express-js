@@ -87,6 +87,17 @@ exports.deleteUser = (req, res, next) => {
     }
 }
 
-exports.createUser = (req, res, next) => {
-    console.log(req.body, "2222222222222222222222");
+exports.followUser = (req, res, next) => {
+    const { follower_id, followed_id } = req.body
+    user.followUser({ follower_id, followed_id }).then(([resultData, fieldData]) => {
+        res.status(200).send({
+            message: 'You followed him successfully!',
+            status: 200,
+            followed_id: resultData?.insertId,
+        })
+    }).catch((error) => {
+        console.log(error,'aaaaa');
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
 }

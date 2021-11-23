@@ -12,4 +12,9 @@ router.put('/user/updateUser', isAuth, userCtrl.updateUser)
 // DELETE USER
 router.delete('/user/deleteUser', isAuth, userCtrl.deleteUser)
 
+// FOLLOW USER
+router.post('/followUser', isAuth, userCtrl.followUser)
+
+
+
 module.exports = router;
