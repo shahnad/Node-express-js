@@ -25,4 +25,11 @@ module.exports = class bookModel {
         return db.execute(query, [book_id, rate, rated_user_id, episode_id, new Date(), new Date()])
 
     }
+
+
+    getEpisodeByBook = (params) => {
+        const { bookId } = params
+        const query = `SELECT * FROM episodes WHERE book_id = ?`
+        return db.execute(query, [bookId])
+    }
 }

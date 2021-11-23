@@ -63,4 +63,7 @@ module.exports = class userModel {
         const query = `INSERT INTO followers (follower_id, followed_id, created_at, updated_at) VALUES (?,?,?,?)`
         return db.execute(query, [follower_id, followed_id, new Date(), new Date()])
     }
+
+
+
 }

@@ -16,5 +16,8 @@ router.post('/addNewEpisode', bookCtrl.addEpisode);
 router.post('/rateEpisode', bookCtrl.rateEpisode);
 
 
+/* Add New Episode*/
+router.get('/getEpisodeByBook', bookCtrl.getEpisodeByBook);
+
 
 module.exports = router;

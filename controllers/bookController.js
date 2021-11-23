@@ -1,3 +1,4 @@
+const e = require("express");
 const bookModel = require("../Models/bookModel");
 const book = new bookModel()
 
@@ -60,3 +61,26 @@ exports.rateEpisode = (req, res, next) => {
     })
 
 }
+
+exports.getEpisodeByBook = (req, res, next) => {
+    const { bookId } = req.query
+    book.getEpisodeByBook({ bookId }).then(([rows], fieldData) => {
+        const encryptContent = rows?.length > 0 && rows?.map(item => ({
+            ...item,
+            content: item.content?.split(' ')
+        }))
+        res.status(200).send({
+            message: 'Episodes fetch successfully',
+            data: encryptContent,
+            status: 200
+        })
+
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+
+}
+
