@@ -2,6 +2,8 @@ const e = require("express");
 const bookModel = require("../Models/bookModel");
 const book = new bookModel()
 
+let EpisodeArray = []
+
 exports.createBook = (req, res, next) => {
     const { title, imageurl, category, type, userid } = req.body
     console.log(category, "categorycategory");
@@ -64,13 +66,6 @@ exports.rateEpisode = (req, res, next) => {
 }
 
 
-const getEpisodeDetails = async (episodeId, i) => {
-    const checkData = await book.getEpisodeViews({ episodeId })
-    return checkData
-}
-
-
-
 exports.getEpisodeByBook = async (req, res, next) => {
     const { bookId, limit, offset } = req.query
 
@@ -112,5 +107,27 @@ exports.getBooksById = (req, res, next) => {
     })
 
 }
+
+
+exports.readBook = async (req, res, next) => {
+    const { book_id, episode_id, user_id } = req.body
+    const deleteData = await book.deleteSameBook({ book_id, episode_id, user_id })
+    book.readBook({ book_id, episode_id, user_id }).then(([rows], fieldData) => {
+        res.status(200).send({
+            message: 'Readed Data Inserted successfully',
+            data: {
+                insertedId: rows?.insertId,
+                book_id, episode_id, user_id
+            },
+            status: 200
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
 
 

@@ -23,4 +23,9 @@ router.get('/getEpisodeByBook', bookCtrl.getEpisodeByBook);
 /* Add New Episode*/
 router.get('/getBooksById', bookCtrl.getBooksById);
 
+
+/* Add New Episode*/
+router.post('/readBook', bookCtrl.readBook);
+
+
 module.exports = router;

@@ -40,11 +40,24 @@ module.exports = class bookModel {
 
     }
 
-    getEpisodeViews = async (params) => {
+    getEpisodeViews = (params) => {
         const { episodeId, bookId } = params
-        const status = 1
-        const query = `SELECT COUNT(id) count FROM reading where episode_id = ? AND readed = ? AND book_id = ?`
-        return await db.execute(query, [episodeId, status, bookId])
+        const query = `SELECT COUNT(id) count FROM reading where episode_id = ?`
+        return db.execute(query, [episodeId,])
+
+    }
+    deleteSameBook = (params) => {
+        const { book_id, episode_id, user_id } = params
+        const query = `DELETE FROM reading WHERE book_id = ? AND episode_id = ? AND user_id = ?`
+        return db.execute(query, [book_id, episode_id, user_id])
+
+    }
+
+    readBook = (params) => {
+        const { book_id, episode_id, user_id } = params
+        console.log(params, 'aaaaaaaaaaa');
+        const query = `INSERT INTO reading (book_id, episode_id,user_id, created_at, updated_at) VALUES (?,?,?,?,?)`
+        return db.execute(query, [book_id, episode_id, user_id, new Date(), new Date()])
 
     }
 
