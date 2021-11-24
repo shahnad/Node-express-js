@@ -52,6 +52,7 @@ exports.rateEpisode = (req, res, next) => {
             book_id, rate, rated_user_id, episode_id,
             ratedId: rows?.insertId,
         })
+
     }).catch((error) => {
         res.status(404).send({
             message: "Something went wrong",
@@ -62,20 +63,31 @@ exports.rateEpisode = (req, res, next) => {
 
 }
 
-exports.getEpisodeByBook = (req, res, next) => {
-    const { bookId } = req.query
-    book.getEpisodeByBook({ bookId }).then(([rows], fieldData) => {
-        const encryptContent = rows?.length > 0 && rows?.map(item => ({
+
+const getEpisodeDetails = async (episodeId, i) => {
+    const checkData = await book.getEpisodeViews({ episodeId })
+    return checkData
+}
+
+
+
+exports.getEpisodeByBook = async (req, res, next) => {
+    const { bookId, limit, offset } = req.query
+
+    book.getEpisodeByBook({ bookId, limit: limit || 10, offset: offset || 1 }).then(([rows], fieldData) => {
+        const encryptContent = rows?.length > 0 && rows?.map((item, i) => ({
             ...item,
-            content: item.content?.split(' ')
+            content: item.content?.split(' '),
         }))
+
         res.status(200).send({
             message: 'Episodes fetch successfully',
-            data: encryptContent,
+            data: encryptContent || [],
             status: 200
         })
 
     }).catch((error) => {
+        console.log(error, 'errorerror');
         res.status(404).send({
             message: "Something went wrong",
             data: error
@@ -83,4 +95,22 @@ exports.getEpisodeByBook = (req, res, next) => {
     })
 
 }
+
+exports.getBooksById = (req, res, next) => {
+    const { userId } = req.query
+    book.getBooksById({ userId }).then(([rows], fieldData) => {
+        res.status(200).send({
+            message: 'Episodes fetch successfully',
+            data: rows || [],
+            status: 200
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+
+}
+
 

@@ -28,8 +28,24 @@ module.exports = class bookModel {
 
 
     getEpisodeByBook = (params) => {
-        const { bookId } = params
-        const query = `SELECT * FROM episodes WHERE book_id = ?`
-        return db.execute(query, [bookId])
+        const { bookId, limit, offset } = params
+        const query = `SELECT * FROM episodes WHERE book_id = ? LIMIT ? OFFSET ?`
+        return db.execute(query, [bookId, limit, offset])
     }
+
+    getBooksById = (params) => {
+        const { userId } = params
+        const query = `SELECT * FROM books WHERE userid = ?`
+        return db.execute(query, [userId])
+
+    }
+
+    getEpisodeViews = async (params) => {
+        const { episodeId, bookId } = params
+        const status = 1
+        const query = `SELECT COUNT(id) count FROM reading where episode_id = ? AND readed = ? AND book_id = ?`
+        return await db.execute(query, [episodeId, status, bookId])
+
+    }
+
 }
