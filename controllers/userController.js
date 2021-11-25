@@ -121,15 +121,21 @@ exports.getUserProfile = async (req, res, next) => {
             data = { ...data, followed: resultData || [] }
         }).catch((error) => console.log(error))
 
-        await book.getUserBooks({ user_id }).then(([books, fieldData]) => {
+        await book.getUserBooks({ user_id, status: 1 }).then(([books, fieldData]) => {
             const resultData = books?.map((result) => (result.id))
             data = { ...data, books: resultData || [] }
         }).catch((error) => console.log(error))
 
-        const bookIds = data?.books?.map(e => e?.id?.toString())
-        await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
-            const resultData = rating?.map((result) => (result?.rate))
-            const sum = resultData.reduce((a, b) => a + b, 0);
+        await book.getUserBooks({ user_id, status: 0 }).then(([books, fieldData]) => {
+            const resultData = books?.map((result) => (result.id))
+            data = { ...data, drafts: resultData || [] }
+        }).catch((error) => console.log(error))
+
+        const bookIds = data?.books?.map(e => e?.id?.toString()).filter(e => e)
+
+        bookIds?.length > 0 && await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
+            const resultData = rating?.map((result) => (result?.rate)) || []
+            const sum = resultData.reduce((a, b) => a + b, 0) || 0
             data = { ...data, rating: Math.floor(sum / resultData?.length) || 0 }
         }).catch((error) => console.log(error))
 
@@ -143,6 +149,14 @@ exports.getUserProfile = async (req, res, next) => {
             data = { ...data, mylibrary: resultData || [] }
         }).catch((error) => console.log(error))
 
+
+        await user.profileVisited({ user_id }).then(([profile, fieldData]) => {
+            if (profile?.length) {
+                data = { ...data, visitedCount: profile[0]['COUNT(id)'] }
+            }
+        }).catch((error) => console.log(error))
+
+
         res.status(200).send({
             message: 'User profile fetched successfully!',
             status: 200,
@@ -154,4 +168,35 @@ exports.getUserProfile = async (req, res, next) => {
         res.status(404).send({ message: "User Not Exist", status: 404, error })
     })
 
+}
+
+
+exports.visitProfile = async (req, res, next) => {
+    const { user_id, visitors_id } = req.body
+    user.userVistiProfile({ user_id, visitors_id }).then(([followersData, fieldData]) => {
+        res.status(200).send({
+            message: 'User profile visited successfully!',
+            status: 200,
+
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+}
+
+exports.getUserByIds = async (req, res, next) => {
+    const userIds = req.body
+    let data = {}
+    user.getUsersByIds({ userIds }).then(([users, fieldData]) => {
+        data = { ...data, users }
+        res.status(200).send({
+            message: 'Users fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error, data })
+    })
 }

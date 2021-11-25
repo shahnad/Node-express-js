@@ -120,9 +120,14 @@ module.exports = class bookModel {
 
     }
     getUserBooks = (params) => {
-        const { user_id } = params
-        const query = `SELECT * FROM books WHERE userid = ?`
-        return db.execute(query, [user_id])
+        const { user_id, status } = params
+        const query = `SELECT * FROM books WHERE userid = ? AND status = ?`
+        return db.execute(query, [user_id, status])
 
+    }
+    getBooksByIds = (params) => {
+        const { bookIds } = params
+        const query = `SELECT * FROM books WHERE id IN (${bookIds})`
+        return db.execute(query)
     }
 }

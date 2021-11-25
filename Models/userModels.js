@@ -77,7 +77,7 @@ module.exports = class userModel {
         return db.execute(query, [user_id])
     }
 
-  
+
     getUserFollowedIds = (params) => {
         const { user_id } = params
         const query = `SELECT * FROM followers WHERE follower_id = ? ORDER BY id DESC`
@@ -85,10 +85,27 @@ module.exports = class userModel {
     }
 
     getUserRatings = (params) => {
-        const { bookIds } = params
+        const { bookIds } = params 
         const query = `SELECT * FROM rating WHERE book_id IN (${bookIds})`
         return db.execute(query)
 
     }
 
+    userVistiProfile = (params) => {
+        const { user_id, visitors_id } = params
+        const query = `INSERT INTO profilevisitors (user_id, visitors_id, created_at, updated_at) VALUES (?,?,?,?)`
+        return db.execute(query, [user_id, visitors_id, new Date(), new Date()])
+    }
+
+    profileVisited = (params) => {
+        const { user_id } = params
+        const query = `SELECT COUNT(id) FROM profilevisitors WHERE user_id = ?`;
+        return db.execute(query, [user_id])
+    }
+
+    getUsersByIds =(params) => {
+        const { userIds } = params
+        const query = `SELECT * FROM users WHERE _id IN (${userIds})`
+        return db.execute(query)
+    }
 }

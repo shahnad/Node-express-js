@@ -24,7 +24,6 @@ exports.createBook = (req, res, next) => {
     })
 }
 
-
 exports.addEpisode = (req, res, next) => {
     const { episode_no, book_id, content } = req.body
     const time = Math.floor(content?.length / 0.1)
@@ -165,6 +164,25 @@ exports.addToLibrary = async (req, res, next) => {
             status: 200
         })
 
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+
+}
+
+exports.getBooksByIds = async (req, res, next) => {
+    const bookIds = req.body
+    let data = {}
+    book.getBooksByIds({ bookIds }).then(([rows], fieldData) => {
+        data = { ...data, books: rows }
+        res.status(200).send({
+            message: 'Books fetched successfully',
+            status: 200,
+            data
+        })
     }).catch((error) => {
         res.status(404).send({
             message: "Something went wrong",

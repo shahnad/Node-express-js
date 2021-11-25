@@ -34,5 +34,8 @@ router.post('/addToFavorite', bookCtrl.addToFavorite);
 router.post('/addToLibrary', bookCtrl.addToLibrary);
 
 
+/*  getBooksByIds*/
+router.get('/getBooksByIds', bookCtrl.getBooksByIds);
+
 
 module.exports = router;
