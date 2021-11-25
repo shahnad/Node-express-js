@@ -7,9 +7,9 @@ module.exports = class bookModel {
     }
 
     createNewBook(params) {
-        const { title, imageurl, category, type, userid } = params
-        const query = `INSERT INTO books (title, imageurl,category,userid, type, created_at, updated_at) VALUES (?,?,?,?,?,?,?)`
-        return db.execute(query, [title, imageurl, category.join(), type, userid, new Date(), new Date()])
+        const { title, imageurl, category, type, userid, status } = params
+        const query = `INSERT INTO books (title, imageurl,category,userid, type, status, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)`
+        return db.execute(query, [title, imageurl, category.join(), type, userid, status, new Date(), new Date()])
     }
 
     addNewEpisode(params) {

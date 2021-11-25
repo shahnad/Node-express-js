@@ -4,9 +4,9 @@ const bookModel = require("../Models/bookModel");
 const book = new bookModel()
 
 exports.createBook = (req, res, next) => {
-    const { title, imageurl, category, type, userid } = req.body
+    const { title, imageurl, category, type, userid, status } = req.body
 
-    book.createNewBook({ title, imageurl, category, type, userid }).then(([rows], fieldData) => {
+    book.createNewBook({ title, imageurl, category, type, userid, status }).then(([rows], fieldData) => {
         res.status(200).send({
             message: 'Book created successfully',
             data: {
@@ -16,6 +16,7 @@ exports.createBook = (req, res, next) => {
             }
         })
     }).catch((error) => {
+        console.log(error);
         res.status(404).send({
             message: "Something went wrong",
             data: error

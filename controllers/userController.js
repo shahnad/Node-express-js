@@ -122,16 +122,7 @@ exports.getUserProfile = async (req, res, next) => {
         }).catch((error) => console.log(error))
 
         await book.getUserBooks({ user_id }).then(([books, fieldData]) => {
-            const resultData = books?.map((result) => {
-                return {
-                    title: result.title,
-                    image: result.imageurl,
-                    category: result.category.split(','),
-                    type: result.type,
-                    id: result.id
-                }
-
-            })
+            const resultData = books?.map((result) => (result.id))
             data = { ...data, books: resultData || [] }
         }).catch((error) => console.log(error))
 
