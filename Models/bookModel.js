@@ -13,9 +13,10 @@ module.exports = class bookModel {
     }
 
     addNewEpisode(params) {
-        const { episode_no, book_id, content } = params
-        const query = `INSERT INTO episodes (episode_no, book_id,content, created_at, updated_at) VALUES (?,?,?,?,?)`
-        return db.execute(query, [episode_no, book_id, content, new Date(), new Date()])
+        const { episode_no, book_id, content, duration } = params
+        console.log(params, 'params');
+        const query = `INSERT INTO episodes (episode_no, book_id,content,duration, created_at, updated_at) VALUES (?,?,?,?,?,?)`
+        return db.execute(query, [episode_no, book_id, content, duration, new Date(), new Date()])
 
     }
 
@@ -29,8 +30,10 @@ module.exports = class bookModel {
 
     getEpisodeByBook = (params) => {
         const { bookId, limit, offset } = params
-        const query = `SELECT * FROM episodes WHERE book_id = ? LIMIT ? OFFSET ?`
-        return db.execute(query, [bookId, limit, offset])
+        const query = `SELECT episodes._id,episodes.book_id,episodes.content,
+        episodes.duration,episodes.created_at,reading.views FROM episodes  INNER JOIN reading ON episodes._id = reading.episode_id 
+        WHERE episodes.book_id = ? `
+        return db.execute(query, [bookId])
     }
 
     getBooksById = (params) => {
@@ -39,19 +42,51 @@ module.exports = class bookModel {
         return db.execute(query, [userId])
 
     }
-
-    getEpisodeViews = (params) => {
-        const { episodeId, bookId } = params
-        const query = `SELECT COUNT(id) count FROM reading where episode_id = ?`
-        return db.execute(query, [episodeId,])
+    getEpisodeIdViews = (params) => {
+        const { episode_id } = params
+        const query = `SELECT * FROM reading WHERE episode_id = ?`
+        return db.execute(query, [episode_id])
 
     }
+
+    getEpisodeViews = (params) => {
+        const { episdeIds } = params
+        console.log(episdeIds, "episdeIds");
+        const query = `SELECT * FROM reading WHERE episode_id IN (${episdeIds})`
+        return db.execute(query)
+
+    }
+    getEpisodeViewByID = (params) => {
+        const { episode_id, book_id } = params;
+        const query = `SELECT COUNT(id) FROM reading WHERE episode_id = ?`
+        return db.execute(query, [episode_id])
+    }
+
+
     deleteSameBook = (params) => {
         const { book_id, episode_id, user_id } = params
         const query = `DELETE FROM reading WHERE book_id = ? AND episode_id = ? AND user_id = ?`
         return db.execute(query, [book_id, episode_id, user_id])
 
     }
+    selectSingleEpisode = (params) => {
+        const { episode_id } = params
+        const query = `SELECT * FROM episodes WHERE _id = ?`
+        return db.execute(query, [episode_id])
+    }
+
+    UpdateEpisodeView = (params) => {
+        const { views, id } = params
+        const query = `UPDATE reading SET views = ?  WHERE id = ?`
+        return db.execute(query, [views, id])
+    }
+
+    getViewsData = (params) => {
+        const { book_id, episode_id } = params
+        const query = `SELECT * FROM reading  WHERE book_id = ? AND episode_id = ?`
+        return db.execute(query, [book_id, episode_id])
+    }
+
 
     readBook = (params) => {
         const { book_id, episode_id, user_id } = params
@@ -81,6 +116,12 @@ module.exports = class bookModel {
     getMyLibarary = (params) => {
         const { user_id } = params
         const query = `SELECT * FROM library WHERE user_id = ?`
+        return db.execute(query, [user_id])
+
+    }
+    getUserBooks = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM books WHERE userid = ?`
         return db.execute(query, [user_id])
 
     }

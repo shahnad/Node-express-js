@@ -77,12 +77,7 @@ module.exports = class userModel {
         return db.execute(query, [user_id])
     }
 
-    getUserBooks = (params) => {
-        const { user_id } = params
-        const query = `SELECT * FROM books WHERE userid = ?`
-        return db.execute(query, [user_id])
-
-    }
+  
     getUserFollowedIds = (params) => {
         const { user_id } = params
         const query = `SELECT * FROM followers WHERE follower_id = ? ORDER BY id DESC`

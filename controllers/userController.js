@@ -27,7 +27,6 @@ exports.getUsers = async (req, res, next) => {
     })
 }
 
-
 // UPDATE USER 
 exports.updateUser = (req, res, next) => {
     const { email, password, gender } = req.body
@@ -122,7 +121,7 @@ exports.getUserProfile = async (req, res, next) => {
             data = { ...data, followed: resultData || [] }
         }).catch((error) => console.log(error))
 
-        await user.getUserBooks({ user_id }).then(([books, fieldData]) => {
+        await book.getUserBooks({ user_id }).then(([books, fieldData]) => {
             const resultData = books?.map((result) => {
                 return {
                     title: result.title,
@@ -153,11 +152,6 @@ exports.getUserProfile = async (req, res, next) => {
             data = { ...data, mylibrary: resultData || [] }
         }).catch((error) => console.log(error))
 
-
-
-
-
-
         res.status(200).send({
             message: 'User profile fetched successfully!',
             status: 200,
@@ -165,7 +159,7 @@ exports.getUserProfile = async (req, res, next) => {
         })
 
     }).catch((error) => {
-        console.log(error, "rr");
+        console.log(error);
         res.status(404).send({ message: "User Not Exist", status: 404, error })
     })
 
