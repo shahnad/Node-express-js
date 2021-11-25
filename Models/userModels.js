@@ -85,7 +85,7 @@ module.exports = class userModel {
     }
 
     getUserRatings = (params) => {
-        const { bookIds } = params 
+        const { bookIds } = params
         const query = `SELECT * FROM rating WHERE book_id IN (${bookIds})`
         return db.execute(query)
 
@@ -103,9 +103,9 @@ module.exports = class userModel {
         return db.execute(query, [user_id])
     }
 
-    getUsersByIds =(params) => {
+    getUsersByIds = (params) => {
         const { userIds } = params
-        const query = `SELECT * FROM users WHERE _id IN (${userIds})`
+        const query = `SELECT email, username,profile_pic,gender,phone,user_type,bio,coverPic FROM users WHERE _id IN (${userIds})`
         return db.execute(query)
     }
 }
