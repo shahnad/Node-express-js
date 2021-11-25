@@ -2,8 +2,6 @@ const e = require("express");
 const bookModel = require("../Models/bookModel");
 const book = new bookModel()
 
-let EpisodeArray = []
-
 exports.createBook = (req, res, next) => {
     const { title, imageurl, category, type, userid } = req.body
     console.log(category, "categorycategory");
@@ -82,7 +80,6 @@ exports.getEpisodeByBook = async (req, res, next) => {
         })
 
     }).catch((error) => {
-        console.log(error, 'errorerror');
         res.status(404).send({
             message: "Something went wrong",
             data: error
@@ -131,3 +128,40 @@ exports.readBook = async (req, res, next) => {
 
 
 
+exports.addToFavorite = async (req, res, next) => {
+    const { book_id, user_id } = req.body
+
+    book.addToFavorite({ book_id, user_id }).then(([rows], fieldData) => {
+        res.status(200).send({
+            message: 'Added to Favorites successfully',
+            id:rows?.insertId,
+            status: 200
+        })
+
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+
+}
+
+
+exports.addToLibrary = async (req, res, next) => {
+    const { book_id, user_id } = req.body
+    book.addToLibrary({ book_id, user_id }).then(([rows], fieldData) => {
+        res.status(200).send({
+            message: 'Added to library successfully',
+            id:rows?.insertId,
+            status: 200
+        })
+
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+
+}

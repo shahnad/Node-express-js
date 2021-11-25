@@ -64,6 +64,36 @@ module.exports = class userModel {
         return db.execute(query, [follower_id, followed_id, new Date(), new Date()])
     }
 
+    getUserData = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM users WHERE _id = ?`
+        return db.execute(query, [user_id])
 
+    }
+
+    getUserFollowers = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM followers WHERE followed_id = ?`
+        return db.execute(query, [user_id])
+    }
+
+    getUserBooks = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM books WHERE userid = ?`
+        return db.execute(query, [user_id])
+
+    }
+    getUserFollowedIds = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM followers WHERE follower_id = ? ORDER BY id DESC`
+        return db.execute(query, [user_id])
+    }
+
+    getUserRatings = (params) => {
+        const { bookIds } = params
+        const query = `SELECT * FROM rating WHERE book_id IN (${bookIds})`
+        return db.execute(query)
+
+    }
 
 }

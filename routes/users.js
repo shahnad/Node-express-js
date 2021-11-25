@@ -16,5 +16,8 @@ router.delete('/user/deleteUser', isAuth, userCtrl.deleteUser)
 router.post('/followUser', isAuth, userCtrl.followUser)
 
 
+// get USER PROFILE
+router.get('/getUserProfile', isAuth, userCtrl.getUserProfile)
+
 
 module.exports = router;

@@ -55,10 +55,33 @@ module.exports = class bookModel {
 
     readBook = (params) => {
         const { book_id, episode_id, user_id } = params
-        console.log(params, 'aaaaaaaaaaa');
         const query = `INSERT INTO reading (book_id, episode_id,user_id, created_at, updated_at) VALUES (?,?,?,?,?)`
         return db.execute(query, [book_id, episode_id, user_id, new Date(), new Date()])
+    }
+
+    addToFavorite = (params) => {
+        const { book_id, user_id } = params
+        const query = `INSERT INTO favorites (book_id, user_id, created_at, updated_at) VALUES (?,?,?,?)`
+        return db.execute(query, [book_id, user_id, new Date(), new Date()])
+    }
+
+    FavoriteBooks = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM favorites WHERE user_id = ?`
+        return db.execute(query, [user_id])
 
     }
 
+    addToLibrary = (params) => {
+        const { book_id, user_id } = params
+        const query = `INSERT INTO library (book_id, user_id, created_at, updated_at) VALUES (?,?,?,?)`
+        return db.execute(query, [book_id, user_id, new Date(), new Date()])
+    }
+
+    getMyLibarary = (params) => {
+        const { user_id } = params
+        const query = `SELECT * FROM library WHERE user_id = ?`
+        return db.execute(query, [user_id])
+
+    }
 }

@@ -1,9 +1,12 @@
 const userModel = require('../Models/userModels');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const bookModel = require('../Models/bookModel');
 
 
 const user = new userModel()
+
+const book = new bookModel()
 
 // GET USER
 exports.getUsers = async (req, res, next) => {
@@ -99,4 +102,71 @@ exports.followUser = (req, res, next) => {
     }).catch((error) => {
         res.status(404).send({ message: "User Not Exist", status: 404, error })
     })
+}
+
+exports.getUserProfile = async (req, res, next) => {
+    const { user_id } = req.query
+
+    await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
+        delete resultData[0]['password']
+        let data = {
+            ...resultData[0],
+        }
+        await user.getUserFollowers({ user_id }).then(([followersData, fieldData]) => {
+            const resultData = followersData?.map((result) => (result?.follower_id))
+            data = { ...data, followers: resultData || [] }
+        }).catch((error) => console.log(error))
+
+        await user.getUserFollowedIds({ user_id }).then(([followedData, fieldData]) => {
+            const resultData = followedData?.map((result) => (result?.followed_id))
+            data = { ...data, followed: resultData || [] }
+        }).catch((error) => console.log(error))
+
+        await user.getUserBooks({ user_id }).then(([books, fieldData]) => {
+            const resultData = books?.map((result) => {
+                return {
+                    title: result.title,
+                    image: result.imageurl,
+                    category: result.category.split(','),
+                    type: result.type,
+                    id: result.id
+                }
+
+            })
+            data = { ...data, books: resultData || [] }
+        }).catch((error) => console.log(error))
+
+        const bookIds = data?.books?.map(e => e?.id?.toString())
+        await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
+            const resultData = rating?.map((result) => (result?.rate))
+            const sum = resultData.reduce((a, b) => a + b, 0);
+            data = { ...data, rating: Math.floor(sum / resultData?.length) || 0 }
+        }).catch((error) => console.log(error))
+
+        await book.FavoriteBooks({ user_id }).then(([favorites, fieldData]) => {
+            const resultData = favorites?.map((result) => (result?.book_id))
+            data = { ...data, favoriteBooks: resultData || [] }
+        }).catch((error) => console.log(error))
+
+        await book.getMyLibarary({ user_id }).then(([library, fieldData]) => {
+            const resultData = library?.map((result) => (result?.book_id))
+            data = { ...data, mylibrary: resultData || [] }
+        }).catch((error) => console.log(error))
+
+
+
+
+
+
+        res.status(200).send({
+            message: 'User profile fetched successfully!',
+            status: 200,
+            data
+        })
+
+    }).catch((error) => {
+        console.log(error, "rr");
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
 }

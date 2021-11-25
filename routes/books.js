@@ -3,29 +3,36 @@ const router = express.Router();
 
 const bookCtrl = require('../controllers/bookController')
 
-
 /* Create Story*/
 router.post('/createStory', bookCtrl.createBook);
 
 
-/* Add New Episode*/
+/* add New Episode*/
 router.post('/addNewEpisode', bookCtrl.addEpisode);
 
 
-/* Add New Episode*/
+/* rate Episode*/
 router.post('/rateEpisode', bookCtrl.rateEpisode);
 
 
-/* Add New Episode*/
+/* get Episode By Book*/
 router.get('/getEpisodeByBook', bookCtrl.getEpisodeByBook);
 
 
-/* Add New Episode*/
+/* get Books ById*/
 router.get('/getBooksById', bookCtrl.getBooksById);
 
 
-/* Add New Episode*/
+/* read Book*/
 router.post('/readBook', bookCtrl.readBook);
+
+/* add To Favorite*/
+router.post('/addToFavorite', bookCtrl.addToFavorite);
+
+
+/* add To Library*/
+router.post('/addToLibrary', bookCtrl.addToLibrary);
+
 
 
 module.exports = router;
