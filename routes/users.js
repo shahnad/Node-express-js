@@ -16,17 +16,22 @@ router.delete('/user/deleteUser', isAuth, userCtrl.deleteUser)
 router.post('/followUser', isAuth, userCtrl.followUser)
 
 
-// getUserByIds
+// Get User By Ids
 router.get('/getUsersByIds', isAuth, userCtrl.getUserByIds)
 
 
-// get USER PROFILE
+// Get USER PROFILE
 router.get('/getUserProfile', isAuth, userCtrl.getUserProfile)
 
 
 
-// get USER PROFILE
+// Post USER PROFILE
 router.post('/visitProfile', isAuth, userCtrl.visitProfile)
 
 
+//Get Premium Writers
+router.get('/getPremiumWriters', isAuth, userCtrl.getPremiumWriters)
+
+
+// 
 module.exports = router;

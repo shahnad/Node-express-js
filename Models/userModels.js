@@ -108,4 +108,11 @@ module.exports = class userModel {
         const query = `SELECT email, username,profile_pic,gender,phone,user_type,bio,coverPic FROM users WHERE _id IN (${userIds})`
         return db.execute(query)
     }
+
+    getPremiumWriters = () => {
+        const user_type = 2
+        const query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic, users.user_type, users.created_at AS JoinedDate, 
+        rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id AND users.user_type = ?`
+        return db.execute(query,[user_type])
+    }
 }

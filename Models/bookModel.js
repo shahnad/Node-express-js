@@ -21,9 +21,9 @@ module.exports = class bookModel {
     }
 
     rateMyEpisode(params) {
-        const { book_id, rate, rated_user_id, episode_id } = params
-        const query = `INSERT INTO rating (book_id, rate,rated_user_id, episode_id,created_at, updated_at) VALUES (?,?,?,?,?,?)`
-        return db.execute(query, [book_id, rate, rated_user_id, episode_id, new Date(), new Date()])
+        const { book_id, rate, rated_user_id, episode_id ,writer_id} = params
+        const query = `INSERT INTO rating (book_id, rate,rated_user_id,writer_id, episode_id,created_at, updated_at) VALUES (?,?,?,?,?,?,?)`
+        return db.execute(query, [book_id, rate, rated_user_id, episode_id,writer_id, new Date(), new Date()])
 
     }
 
@@ -127,7 +127,7 @@ module.exports = class bookModel {
     }
     getBooksByIds = (params) => {
         const { bookIds } = params
-        const query = `SELECT * FROM books WHERE id IN (${bookIds})`
+        const query = `SELECT * FROM books WHERE id IN (${bookIds}) `
         return db.execute(query)
     }
 }

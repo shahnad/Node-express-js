@@ -200,3 +200,20 @@ exports.getUserByIds = async (req, res, next) => {
         res.status(404).send({ message: "User Not Exist", status: 404, error, data })
     })
 }
+
+
+exports.getPremiumWriters = async (req, res, next) => {
+    let data = { writers: [] }
+    await user.getPremiumWriters().then(([writers, fieldData]) => {
+        data = { ...data, writers: writers }
+        res.status(200).send({
+            message: 'Founder writers fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
+}
