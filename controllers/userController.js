@@ -15,11 +15,15 @@ exports.getUsers = async (req, res, next) => {
         users: [],
         total: 0
     }
-    await user.getCountOfallUsers().then(([rows]) => {
-        data = { ...data, total: rows[0]['COUNT(*)'] }
-    }).catch((err) => err)
 
-    user.getUsers({ page: page || '1', limit: limit || 10 }).then(([rows]) => {
+    await user.getUsers({ page: null, limit: null }).then(([rows]) => {
+        data = { ...data, total: rows?.length }
+
+    }).catch((error) => {
+        console.error(error)
+    })
+
+    await user.getUsers({ page: page || 0, limit: limit || 10 }).then(([rows]) => {
         data = { ...data, users: rows }
         res.status(200).send({ data: data, status: 200, message: 'Users Listed Sucessfully' })
     }).catch((error) => {
@@ -204,18 +208,38 @@ exports.getUserByIds = async (req, res, next) => {
 
 exports.getPremiumWriters = async (req, res, next) => {
     const { limit, page } = req.query
-
     let data = { writers: [], total: 0 }
     const user_type = 2
-
-
-    await user.getPremiumWriters({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
-        console.log(total,"56666");
+    await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
         data = { ...data, total: total?.length }
     }).catch((error) => {
         console.log(error)
     })
-    await user.getPremiumWriters({ user_type, limit, page }).then(([writers, fieldData]) => {
+    await user.WritersByID({ user_type, limit, page }).then(([writers, fieldData]) => {
+        data = { ...data, writers: writers }
+        res.status(200).send({
+            message: 'Founder writers fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
+}
+
+
+exports.getFounderWriters = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { writers: [], total: 0 }
+    const user_type = 3
+    await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+    await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, writers: writers }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',

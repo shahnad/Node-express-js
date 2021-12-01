@@ -33,5 +33,11 @@ router.post('/visitProfile', isAuth, userCtrl.visitProfile)
 router.get('/getPremiumWriters', isAuth, userCtrl.getPremiumWriters)
 
 
+
+//Get Premium Writers
+router.get('/getFounderWriters', isAuth, userCtrl.getFounderWriters)
+
+
+
 // 
 module.exports = router;

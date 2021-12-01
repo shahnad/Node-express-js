@@ -28,4 +28,10 @@ module.exports = class authModel {
     }
 
 
+    getSliderImages() {
+       const query = `SELECT image FROM sliderimages ORDER BY id DESC`
+        return db.execute(query)
+    }
+
+
 }
