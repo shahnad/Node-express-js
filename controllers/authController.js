@@ -86,6 +86,31 @@ exports.getSliderImages = (req, res, next) => {
         data = { ...data, images: images }
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => console.error(error))
-
 }
 
+exports.booksandwriters = async (req, res, next) => {
+    const { search, limit, page } = req.query
+    let data = {}
+    await auth.searchBooksOrWriters({ search, limit: null, page: null }).then(([result, fieldResData]) => {
+        data = { ...data, totalBooks: result?.length }
+    }).catch((error) => console.error(error))
+
+    await auth.searchBooksOrWriters({ search, limit: limit || 10, page: page || 0 }).then(([result, fieldResData]) => {
+        data = { ...data, bookdata: { type: 'book', data: result } }
+
+    }).catch((error) => console.error(error))
+
+    await auth.searchWriters({ search, limit: null, page: null }).then(([result, fieldResData]) => {
+        data = { ...data, totalWriters: result?.length }
+    }).catch((error) => console.error(error))
+    await auth.searchWriters({ search, limit: limit || 10, page: page || 0 }).then(([result, fieldResData]) => {
+        data = { ...data, writer: { type: 'writer', data: result } }
+        res.status(200).send({ message: 'OK', status: 200, data })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+
+}
