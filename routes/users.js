@@ -37,7 +37,10 @@ router.get('/getPremiumWriters', isAuth, userCtrl.getPremiumWriters)
 //Get Premium Writers
 router.get('/getFounderWriters', isAuth, userCtrl.getFounderWriters)
 
+//Get Top Writers
+router.get('/getTopWriters', isAuth, userCtrl.getTopWriters)
 
 
-// 
+
+
 module.exports = router;

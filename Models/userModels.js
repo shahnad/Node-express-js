@@ -50,7 +50,7 @@ module.exports = class userModel {
     getUsers(params) {
         const { page, limit } = params
         const query = `SELECT * FROM users ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
-        return db.execute(query, )
+        return db.execute(query,)
     }
 
     createUserviagoogle = (params) => {
@@ -119,5 +119,15 @@ module.exports = class userModel {
         }
 
         return db.execute(query, queries)
+    }
+
+    getTopWriters = ({ limit, page }) => {
+        let queries = []
+        let query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic, users.user_type, users.created_at AS JoinedDate, 
+        rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
+        if (!limit == null && page !== null) {
+            queries = [user_type, limit, page]
+        }
+        return db.execute(query,queries)
     }
 }

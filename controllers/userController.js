@@ -252,3 +252,29 @@ exports.getFounderWriters = async (req, res, next) => {
     })
 
 }
+
+exports.getTopWriters = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { writers: [], total: 0 }
+
+    await user.getTopWriters({ limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+
+    await user.getTopWriters({ limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
+        data = { ...data, writers: writers }
+        res.status(200).send({
+            message: 'Founder writers fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
+}
+
+
