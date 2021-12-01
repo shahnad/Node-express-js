@@ -101,10 +101,15 @@ module.exports = class bookModel {
     }
 
     FavoriteBooks = (params) => {
-        const { user_id } = params
-        const query = `SELECT * FROM favorites WHERE user_id = ?`
-        return db.execute(query, [user_id])
+        const { user_id, limit, page } = params
+        const query = `SELECT books.id as id ,books.imageurl as image, books.title as title, books.type FROM favorites INNER JOIN books WHERE books.id = favorites.book_id AND favorites.user_id = ${user_id} ORDER BY favorites.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        return db.execute(query)
 
+    }
+
+    getuserLibrary = ({ user_id, limit, page }) => {
+        const query = `SELECT  books.id as id , books.imageurl as image ,books.title, books.type, library.created_at as added_on FROM library INNER JOIN books WHERE books.id = library.book_id AND library.user_id = ${user_id} ORDER BY library.id DESC  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        return db.execute(query)
     }
 
     addToLibrary = (params) => {
@@ -132,7 +137,7 @@ module.exports = class bookModel {
     }
 
     getUserDrafts = ({ user_id, limit, page }) => {
-        const query = `SELECT books.id as book_id,books.title as title, books.imageurl as image , episodes._id as episode_id , episodes.created_at as writed_on ,episodes.status, episodes.episode_no FROM books INNER JOIN episodes WHERE  books.id = episodes.book_id AND books.userid = ${user_id} AND episodes.status= 0 ORDER BY episodes._id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}`:''}`
+        const query = `SELECT books.id as book_id,books.title as title, books.imageurl as image , episodes._id as episode_id , episodes.created_at as writed_on ,episodes.status, episodes.episode_no FROM books INNER JOIN episodes WHERE  books.id = episodes.book_id AND books.userid = ${user_id} AND episodes.status= 0 ORDER BY episodes._id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 }

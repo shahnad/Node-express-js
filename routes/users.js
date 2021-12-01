@@ -47,14 +47,15 @@ router.get('/getuserFollowers', isAuth, userCtrl.getUserFollowers)
 //Get Top Writers
 router.get('/getuserFollowings', isAuth, userCtrl.getUserFollowings)
 
-
 router.get('/getuserWritings', isAuth, userCtrl.getuserWritings)
 
 router.get('/getuserDrafts', isAuth, userCtrl.getUserDrafts)
 
 
+router.get('/getuserFavoriteBooks', isAuth, userCtrl.getuserFavoriteBooks)
 
-// 
+
+router.get('/getuserLibrary', isAuth, userCtrl.getuserLibrary)
 
 
 module.exports = router;

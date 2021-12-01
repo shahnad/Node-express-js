@@ -176,31 +176,40 @@ exports.getUserDrafts = async (req, res, next) => {
     }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
 }
 
-exports.getUserFavoriteBooks = async (req, res, next) => {
+exports.getuserFavoriteBooks = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-    await book.FavoriteBooks({ user_id }).then(([favoriteBooks, fieldData]) => {
+    await book.FavoriteBooks({ user_id, limit: null, page: null }).then(([favoriteBooks, fieldData]) => {
+        data = { ...data, total: favoriteBooks?.length || 0 }
+    }).catch((error) => console.error(error))
+
+    await book.FavoriteBooks({ user_id, limit: limit || 10, page: page || 0 }).then(([favoriteBooks, fieldData]) => {
         data = { ...data, data: favoriteBooks || [] }
         res.status(200).send({
-            message: 'followers fetched successfully!',
+            message: 'favorite books fetched successfully!',
             status: 200,
             data
         })
     }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
 }
 
-exports.getUserLibrary = async (req, res, next) => {
-    const { user_id } = req.query
+exports.getuserLibrary = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
     let data = {}
-    await book.getMyLibarary({ user_id }).then(([library, fieldData]) => {
-        data = { ...data, data: favoriteBooks || [] }
+    await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
+        data = { ...data, total: library?.length || 0 }
+    }).catch((error) => console.error(error))
+
+    await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
+        data = { ...data, data: library || [] }
         res.status(200).send({
-            message: 'followers fetched successfully!',
+            message: 'library books fetched successfully!',
             status: 200,
             data
         })
     }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
 }
+
 
 
 exports.getUserProfile = async (req, res, next) => {
