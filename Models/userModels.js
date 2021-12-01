@@ -111,15 +111,13 @@ module.exports = class userModel {
     }
 
     getPremiumWriters = ({ user_type, limit, page }) => {
-
         let queries = [user_type]
-
         let query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic, users.user_type, users.created_at AS JoinedDate, 
         rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id AND users.user_type = ? ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
         if (!limit == null && page !== null) {
             queries = [user_type, limit, page]
         }
+        console.log(query,"query");
         return db.execute(query, queries)
-
     }
 }

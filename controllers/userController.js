@@ -210,6 +210,7 @@ exports.getPremiumWriters = async (req, res, next) => {
 
 
     await user.getPremiumWriters({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
+        console.log(total,"56666");
         data = { ...data, total: total?.length }
     }).catch((error) => {
         console.log(error)
