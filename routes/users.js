@@ -41,6 +41,20 @@ router.get('/getFounderWriters', isAuth, userCtrl.getFounderWriters)
 router.get('/getTopWriters', isAuth, userCtrl.getTopWriters)
 
 
+//Get Top Writers
+router.get('/getuserFollowers', isAuth, userCtrl.getUserFollowers)
+
+//Get Top Writers
+router.get('/getuserFollowings', isAuth, userCtrl.getUserFollowings)
+
+
+router.get('/getuserWritings', isAuth, userCtrl.getuserWritings)
+
+router.get('/getuserDrafts', isAuth, userCtrl.getUserDrafts)
+
+
+
+// 
 
 
 module.exports = router;
