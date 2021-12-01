@@ -203,8 +203,18 @@ exports.getUserByIds = async (req, res, next) => {
 
 
 exports.getPremiumWriters = async (req, res, next) => {
-    let data = { writers: [] }
-    await user.getPremiumWriters().then(([writers, fieldData]) => {
+    const { limit, page } = req.query
+
+    let data = { writers: [], total: 0 }
+    const user_type = 2
+
+
+    await user.getPremiumWriters({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+    await user.getPremiumWriters({ user_type, limit, page }).then(([writers, fieldData]) => {
         data = { ...data, writers: writers }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',
