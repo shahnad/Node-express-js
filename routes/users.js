@@ -51,11 +51,15 @@ router.get('/getuserWritings', isAuth, userCtrl.getuserWritings)
 
 router.get('/getuserDrafts', isAuth, userCtrl.getUserDrafts)
 
-
 router.get('/getuserFavoriteBooks', isAuth, userCtrl.getuserFavoriteBooks)
 
-
 router.get('/getuserLibrary', isAuth, userCtrl.getuserLibrary)
+
+router.get('/getBookCategories', isAuth, userCtrl.getBookCategories)
+
+router.get('/getBookTypes', isAuth, userCtrl.getBookTypes)
+
+// 
 
 
 module.exports = router;

@@ -121,8 +121,19 @@ module.exports = class userModel {
         let queries = []
         let query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic, users.user_type, users.created_at AS joinedDate, 
         rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
-   
+
         return db.execute(query, queries)
     }
+
+    getBookCategories = () => {
+        const query = `SELECT _id as id, category FROM bookcategories`;
+        return db.execute(query)
+    }
+    
+    getBookTypes = () => {
+        const query = `SELECT id, type FROM booktype`;
+        return db.execute(query)
+    }
+    
 
 }

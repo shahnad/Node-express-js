@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const bookModel = require('../Models/bookModel');
 
-
 const user = new userModel()
 
 const book = new bookModel()
@@ -211,7 +210,6 @@ exports.getuserLibrary = async (req, res, next) => {
 }
 
 
-
 exports.getUserProfile = async (req, res, next) => {
     const { user_id } = req.query
 
@@ -248,7 +246,6 @@ exports.getUserProfile = async (req, res, next) => {
 
 }
 
-
 exports.visitProfile = async (req, res, next) => {
     const { user_id, visitors_id } = req.body
     user.userVistiProfile({ user_id, visitors_id }).then(([followersData, fieldData]) => {
@@ -279,7 +276,6 @@ exports.getUserByIds = async (req, res, next) => {
     })
 }
 
-
 exports.getPremiumWriters = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { writers: [], total: 0 }
@@ -302,7 +298,6 @@ exports.getPremiumWriters = async (req, res, next) => {
     })
 
 }
-
 
 exports.getFounderWriters = async (req, res, next) => {
     const { limit, page } = req.query
@@ -351,4 +346,27 @@ exports.getTopWriters = async (req, res, next) => {
 
 }
 
+exports.getBookCategories = async (req, res, next) => {
+    let data = {}
+    await user.getBookCategories().then(([categories, fieldData]) => {
+        data = { ...data, data: categories, statusText: 'Ok', status: 200, message: 'Categories fetched successfully!', }
+        res.status(200).send({ data })
+    }).catch((error) => {
+        console.error(error)
+        data = { ...data, message: "Something went wrong", status: 404, error }
+        res.status(404).send({ data })
+    })
+}
 
+exports.getBookTypes = async (req, res, next) => {
+    let data = {}
+    await user.getBookTypes().then(([categories, fieldData]) => {
+        data = { ...data, data: categories, statusText: 'Ok', status: 200, message: 'Categories fetched successfully!', }
+        res.status(200).send({ data })
+    }).catch((error) => {
+        console.error(error)
+        data = { ...data, message: "Something went wrong", status: 404, error }
+        res.status(404).send({ data })
+    })
+}
+// 
