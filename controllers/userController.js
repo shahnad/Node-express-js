@@ -278,30 +278,31 @@ exports.getUserByIds = async (req, res, next) => {
 
 exports.getPremiumWriters = async (req, res, next) => {
     const { limit, page } = req.query
-    let data = { writers: [], total: 0 }
+    let data = { total: 0 }
     const user_type = 2
     await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
         data = { ...data, total: total?.length }
     }).catch((error) => {
         console.log(error)
     })
-    await user.WritersByID({ user_type, limit, page }).then(([writers, fieldData]) => {
-        data = { ...data, writers: writers }
+    await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
+        data = { ...data, data: writers || [] }
         res.status(200).send({
-            message: 'Founder writers fetched successfully!',
+            message: 'Premium writers fetched successfully!',
             status: 200,
+            statusText: 'OK',
             data
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        res.status(404).send({ message: error, status: 404  })
     })
 
 }
 
 exports.getFounderWriters = async (req, res, next) => {
     const { limit, page } = req.query
-    let data = { writers: [], total: 0 }
+    let data = {  total: 0 }
     const user_type = 3
     await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
         data = { ...data, total: total?.length }
@@ -309,7 +310,7 @@ exports.getFounderWriters = async (req, res, next) => {
         console.log(error)
     })
     await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
-        data = { ...data, writers: writers }
+        data = { ...data, data: writers || [] }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',
             status: 200,
@@ -369,4 +370,4 @@ exports.getBookTypes = async (req, res, next) => {
         res.status(404).send({ data })
     })
 }
-// 
+//

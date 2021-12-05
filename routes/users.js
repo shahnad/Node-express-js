@@ -30,15 +30,15 @@ router.post('/visitProfile', isAuth, userCtrl.visitProfile)
 
 
 //Get Premium Writers
-router.get('/getPremiumWriters', isAuth, userCtrl.getPremiumWriters)
+router.get('/getPremiumWriters',  userCtrl.getPremiumWriters)
 
 
 
 //Get Premium Writers
-router.get('/getFounderWriters', isAuth, userCtrl.getFounderWriters)
+router.get('/getFounderWriters',  userCtrl.getFounderWriters)
 
 //Get Top Writers
-router.get('/getTopWriters', isAuth, userCtrl.getTopWriters)
+router.get('/getTopWriters',  userCtrl.getTopWriters)
 
 
 //Get Top Writers

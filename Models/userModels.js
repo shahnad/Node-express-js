@@ -112,7 +112,7 @@ module.exports = class userModel {
 
     WritersByID = ({ user_type, limit, page }) => {
         let queries = [user_type]
-        let query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic, users.user_type, users.created_at AS joinedDate, 
+        let query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic as image, users.user_type, users.created_at AS joinedDate, 
         rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id AND users.user_type = ? ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
         return db.execute(query, queries)
     }

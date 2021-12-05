@@ -21,16 +21,16 @@ exports.login = (req, res, next) => {
                         req.session.userData = userData
                         res.status(200).send({ data: userData, message: 'Logged In Successfully', status: 200, token });
                     } else {
-                        res.status(404).send({ error: 'Invalid Password' })
+                        res.status(404).send({ message: 'Invalid Password', status: 404 })
                     }
                 }).catch((error) => {
-                    res.status(404).send({ error: error, status: 404 })
+                    res.status(404).send({ message:error, status: 404 })
                 })
         } else {
             res.status(404).send({ error: 'User Not Exist', status: 404 })
         }
     }).catch((error) =>
-        res.status(500).send({ error: error, status: 500 })
+        res.status(500).send({  message:error, status: 500 })
     )
 
 }
@@ -53,14 +53,14 @@ exports.signUp = (req, res, next) => {
                         message: 'User Created Successfully !', data: { email, username, password: hash, profile_pic: imagePath, token }, status: 200
                     })
                 }).catch((error) => {
-                    res.status(500).send({ error: error, status: 500 })
+                    res.status(500).send({ message:error, status: 500 })
                 })
             }).catch((error) => {
-                res.status(404).send({ error: error, status: 404 })
+                res.status(404).send({  message:error, status: 404 })
             })
         }
     }).catch((error) => {
-        res.status(500).send({ error: error, status: 500 })
+        res.status(500).send({ message:error, status: 500 })
     })
 }
 
@@ -85,7 +85,9 @@ exports.getSliderImages = (req, res, next) => {
     auth.getSliderImages().then(([images, fieldResData]) => {
         data = { ...data, images: images }
         res.status(200).send({ message: 'OK', status: 200, data })
-    }).catch((error) => console.error(error))
+    }).catch((error) => {
+        res.status(404).send({ message:error, status: 500 })
+    })
 }
 
 exports.booksandwriters = async (req, res, next) => {
@@ -108,8 +110,7 @@ exports.booksandwriters = async (req, res, next) => {
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+           message: error
         })
     })
 
