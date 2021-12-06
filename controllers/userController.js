@@ -2,7 +2,7 @@ const userModel = require('../Models/userModels');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const bookModel = require('../Models/bookModel');
-
+const crypto = require('../crypto/index')
 const user = new userModel()
 
 const book = new bookModel()
@@ -206,12 +206,13 @@ exports.getuserLibrary = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+    }).catch((error) => res.status(404).send({ message: error, status: 404,  }))
 }
 
 
 exports.getUserProfile = async (req, res, next) => {
-    const { user_id } = req.query
+    let { user_id } = req.query
+
 
     await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
         delete resultData[0]['password']
@@ -295,14 +296,14 @@ exports.getPremiumWriters = async (req, res, next) => {
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: error, status: 404  })
+        res.status(404).send({ message: error, status: 404 })
     })
 
 }
 
 exports.getFounderWriters = async (req, res, next) => {
     const { limit, page } = req.query
-    let data = {  total: 0 }
+    let data = { total: 0 }
     const user_type = 3
     await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
         data = { ...data, total: total?.length }

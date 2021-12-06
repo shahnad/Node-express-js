@@ -108,7 +108,7 @@ module.exports = class bookModel {
     }
 
     getuserLibrary = ({ user_id, limit, page }) => {
-        const query = `SELECT  books.id as id , books.imageurl as image ,books.title, books.type, library.created_at as added_on FROM library INNER JOIN books WHERE books.id = library.book_id AND library.user_id = ${user_id} ORDER BY library.id DESC  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        const query = `SELECT  books.id as id , books.imageurl as image ,books.title, books.type, library.created_at as added_on, AVG(rating.rate) as rating FROM library JOIN books  ON books.id = library.book_id AND library.user_id = ${user_id} JOIN rating ON  books.id = rating.book_id ORDER BY library.id DESC  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
         return db.execute(query)
     }
 
