@@ -102,13 +102,16 @@ module.exports = class bookModel {
 
     FavoriteBooks = (params) => {
         const { user_id, limit, page } = params
-        const query = `SELECT books.id as id ,books.imageurl as image, books.title as title, books.type FROM favorites INNER JOIN books WHERE books.id = favorites.book_id AND favorites.user_id = ${user_id} ORDER BY favorites.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        const query = `SELECT DISTINCT  books.id as id , books.imageurl as image ,books.title, books.type, 
+        favorites.created_at as created  FROM favorites  JOIN books ON books.id = favorites.book_id WHERE favorites.user_id = ${user_id} ORDER BY favorites.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+
         return db.execute(query)
 
     }
 
     getuserLibrary = ({ user_id, limit, page }) => {
-        const query = `SELECT  books.id as id , books.imageurl as image ,books.title, books.type, library.created_at as added_on, AVG(rating.rate) as rating FROM library JOIN books  ON books.id = library.book_id AND library.user_id = ${user_id} JOIN rating ON  books.id = rating.book_id ORDER BY library.id DESC  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        const query = `SELECT DISTINCT  books.id as id , books.imageurl as image ,books.title, books.type, 
+           library.created_at as created  FROM library  JOIN books ON library.book_id = books.id WHERE library.user_id = ${user_id} ORDER BY library.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 
@@ -126,7 +129,7 @@ module.exports = class bookModel {
     }
     getUserBooks = (params) => {
         const { user_id, limit, page } = params
-        const query = `SELECT id, title, imageurl as image , category, type , price , created_at as joined_on FROM books  WHERE userid = ${user_id}  ORDER BY id DESC  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        const query = `SELECT DISTINCT id , imageurl as image ,title, type,price , created_at as published  FROM books  WHERE userid =${user_id} ORDER BY id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
 
     }
