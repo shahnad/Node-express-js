@@ -1,4 +1,5 @@
 
+const { log } = require('npmlog')
 const db = require('../db/connection')
 
 module.exports = class userModel {
@@ -48,8 +49,8 @@ module.exports = class userModel {
 
     getUsers(params) {
         const { page, limit } = params
-        const query = `SELECT * FROM users LIMIT ? OFFSET ?`
-        return db.execute(query, [limit, page])
+        const query = `SELECT * FROM users ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query,)
     }
 
     createUserviagoogle = (params) => {
@@ -66,22 +67,22 @@ module.exports = class userModel {
 
     getUserData = (params) => {
         const { user_id } = params
-        const query = `SELECT * FROM users WHERE _id = ?`
+        const query = `SELECT _id as id,email, username,profile_pic as image,gender,user_type,bio,coverPic,created_at as joined_date  FROM users WHERE _id = ?`
         return db.execute(query, [user_id])
 
     }
 
     getUserFollowers = (params) => {
-        const { user_id } = params
-        const query = `SELECT * FROM followers WHERE followed_id = ?`
-        return db.execute(query, [user_id])
+        const { user_id, limit, page } = params
+        const query = `SELECT followers.follower_id as id, users.email, users._id as user_id, users.username, users.profile_pic, users.coverPic FROM followers JOIN users ON users._id =followers.follower_id  WHERE followers.followed_id = ${user_id} ORDER BY followers.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query)
     }
 
 
     getUserFollowedIds = (params) => {
-        const { user_id } = params
-        const query = `SELECT * FROM followers WHERE follower_id = ? ORDER BY id DESC`
-        return db.execute(query, [user_id])
+        const { user_id, limit, page } = params
+        const query = `SELECT followers.follower_id as id, users.email, users._id as user_id, users.username, users.profile_pic, users.coverPic FROM followers JOIN users ON users._id = followers.followed_id  WHERE followers.follower_id = ${user_id} ORDER BY followers.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query)
     }
 
     getUserRatings = (params) => {
@@ -105,7 +106,34 @@ module.exports = class userModel {
 
     getUsersByIds = (params) => {
         const { userIds } = params
-        const query = `SELECT email, username,profile_pic,gender,phone,user_type,bio,coverPic FROM users WHERE _id IN (${userIds})`
+        const query = `SELECT _id ,email, username,profile_pic,gender,phone,user_type,bio,coverPic FROM users WHERE _id IN (${userIds})`
         return db.execute(query)
     }
+
+    WritersByID = ({ user_type, limit, page }) => {
+        let queries = [user_type]
+        let query = `SELECT users._id AS id, users.email, users.username, users.profile_pic as image, users.user_type, users.created_at AS joinedDate, 
+        rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id AND users.user_type = ? ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
+        return db.execute(query, queries)
+    }
+
+    getTopWriters = ({ limit, page }) => {
+        let queries = []
+        let query = `SELECT users._id AS user_id, users.email, users.username, users.profile_pic, users.user_type, users.created_at AS joinedDate, 
+        rating.rate AS rating FROM users  INNER JOIN rating WHERE users._id = rating.writer_id ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
+
+        return db.execute(query, queries)
+    }
+
+    getBookCategories = () => {
+        const query = `SELECT _id as id, category FROM bookcategories`;
+        return db.execute(query)
+    }
+
+    getBookTypes = () => {
+        const query = `SELECT id, type FROM booktype`;
+        return db.execute(query)
+    }
+
+
 }

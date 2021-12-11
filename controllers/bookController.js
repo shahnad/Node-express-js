@@ -48,8 +48,8 @@ exports.addEpisode = (req, res, next) => {
 }
 
 exports.rateEpisode = (req, res, next) => {
-    const { book_id, rate, rated_user_id, episode_id } = req.body
-    book.rateMyEpisode({ book_id, rate, rated_user_id, episode_id }).then(([rows], fieldData) => {
+    const { book_id, rate, rated_user_id, episode_id , writer_id } = req.body
+    book.rateMyEpisode({ book_id, rate, rated_user_id, episode_id,writer_id }).then(([rows], fieldData) => {
         res.status(200).send({
             message: 'Rated book successfully',
             book_id, rate, rated_user_id, episode_id,

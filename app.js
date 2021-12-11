@@ -8,6 +8,8 @@ const cors = require('cors')
 const multer = require('multer');
 const session = require('express-session')
 let passport = require('passport')
+const compression = require('compression')
+
 const port = process.env.RUNNING_PORT || 4000;
 const connection = require('./db/connection')
 const indexRouter = require('./routes/index');
@@ -61,7 +63,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: true }
 }))
-
+app.use(compression())
 
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use('/', indexRouter);

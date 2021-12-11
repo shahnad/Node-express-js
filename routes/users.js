@@ -16,17 +16,50 @@ router.delete('/user/deleteUser', isAuth, userCtrl.deleteUser)
 router.post('/followUser', isAuth, userCtrl.followUser)
 
 
-// getUserByIds
+// Get User By Ids
 router.get('/getUsersByIds', isAuth, userCtrl.getUserByIds)
 
 
-// get USER PROFILE
+// Get USER PROFILE
 router.get('/getUserProfile', isAuth, userCtrl.getUserProfile)
 
 
 
-// get USER PROFILE
+// Post USER PROFILE
 router.post('/visitProfile', isAuth, userCtrl.visitProfile)
+
+
+//Get Premium Writers
+router.get('/getPremiumWriters',  userCtrl.getPremiumWriters)
+
+
+
+//Get Premium Writers
+router.get('/getFounderWriters',  userCtrl.getFounderWriters)
+
+//Get Top Writers
+router.get('/getTopWriters',  userCtrl.getTopWriters)
+
+
+//Get Top Writers
+router.get('/getuserFollowers', isAuth, userCtrl.getUserFollowers)
+
+//Get Top Writers
+router.get('/getuserFollowings', isAuth, userCtrl.getUserFollowings)
+
+router.get('/getuserWritings', isAuth, userCtrl.getuserWritings)
+
+router.get('/getuserDrafts', isAuth, userCtrl.getUserDrafts)
+
+router.get('/getuserFavoriteBooks', isAuth, userCtrl.getuserFavoriteBooks)
+
+router.get('/getuserLibrary', isAuth, userCtrl.getuserLibrary)
+
+router.get('/getBookCategories', isAuth, userCtrl.getBookCategories)
+
+router.get('/getBookTypes', isAuth, userCtrl.getBookTypes)
+
+// 
 
 
 module.exports = router;

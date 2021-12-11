@@ -2,8 +2,7 @@ const userModel = require('../Models/userModels');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const bookModel = require('../Models/bookModel');
-
-
+const crypto = require('../crypto/index')
 const user = new userModel()
 
 const book = new bookModel()
@@ -15,11 +14,15 @@ exports.getUsers = async (req, res, next) => {
         users: [],
         total: 0
     }
-    await user.getCountOfallUsers().then(([rows]) => {
-        data = { ...data, total: rows[0]['COUNT(*)'] }
-    }).catch((err) => err)
 
-    user.getUsers({ page: page || '1', limit: limit || 10 }).then(([rows]) => {
+    await user.getUsers({ page: null, limit: null }).then(([rows]) => {
+        data = { ...data, total: rows?.length }
+
+    }).catch((error) => {
+        console.error(error)
+    })
+
+    await user.getUsers({ page: page || 0, limit: limit || 10 }).then(([rows]) => {
         data = { ...data, users: rows }
         res.status(200).send({ data: data, status: 200, message: 'Users Listed Sucessfully' })
     }).catch((error) => {
@@ -103,33 +106,119 @@ exports.followUser = (req, res, next) => {
     })
 }
 
+exports.getUserFollowings = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
+    let data = {}
+    await user.getUserFollowedIds({ user_id, limit: null, page: null }).then(([followers, fieldData]) => {
+        data = { ...data, total: followers?.length || 0 }
+    }).catch((error) => { console.error(error) })
+    await user.getUserFollowedIds({ user_id, limit: limit || 10, page: page || 0 }).then(([followedData, fieldData]) => {
+        data = { ...data, data: followedData || [] }
+        res.status(200).send({
+            message: 'User Followings fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+}
+
+
+exports.getUserFollowers = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
+    let data = {}
+    await user.getUserFollowers({ user_id, limit: null, page: null }).then(([followers, fieldData]) => {
+        data = { ...data, total: followers?.length || 0 }
+    }).catch((error) => { console.error(error) })
+
+    await user.getUserFollowers({ user_id, limit: limit || 10, page: page || 0 }).then(([followers, fieldData]) => {
+        data = { ...data, data: followers || [] }
+        res.status(200).send({
+            message: 'User followers fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+}
+
+exports.getuserWritings = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
+    let data = {}
+
+    await book.getUserBooks({ user_id, limit: null, page: null }).then(([books, fieldData]) => {
+        data = { ...data, total: books?.length || 0 }
+    }).catch((error) => console.error(error))
+
+    await book.getUserBooks({ user_id, limit: limit || 10, page: page || 0 }).then(([books, fieldData]) => {
+        data = { ...data, data: books || [] }
+        res.status(200).send({
+            message: 'User writings fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+}
+
+exports.getUserDrafts = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
+    let data = {}
+    await book.getUserDrafts({ user_id, limit: null, page: null }).then(([drafts, fieldData]) => {
+        data = { ...data, total: drafts?.length || 0 }
+    }).catch((error) => console.error(error))
+
+    await book.getUserDrafts({ user_id, limit, page }).then(([drafts, fieldData]) => {
+        data = { ...data, data: drafts || [] }
+        res.status(200).send({
+            message: 'Drafts fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+}
+
+exports.getuserFavoriteBooks = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
+    let data = {}
+    await book.FavoriteBooks({ user_id, limit: null, page: null }).then(([favoriteBooks, fieldData]) => {
+        data = { ...data, total: favoriteBooks?.length || 0 }
+    }).catch((error) => console.error(error))
+
+    await book.FavoriteBooks({ user_id, limit: limit || 10, page: page || 0 }).then(([favoriteBooks, fieldData]) => {
+        data = { ...data, data: favoriteBooks || [] }
+        res.status(200).send({
+            message: 'favorite books fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+}
+
+exports.getuserLibrary = async (req, res, next) => {
+    const { user_id, limit, page } = req.query
+    let data = {}
+    await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
+        data = { ...data, total: library?.length || 0 }
+    }).catch((error) => console.error(error))
+
+    await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
+        data = { ...data, data: library || [] }
+        res.status(200).send({
+            message: 'library books fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => res.status(404).send({ message: error, status: 404,  }))
+}
+
+
 exports.getUserProfile = async (req, res, next) => {
-    const { user_id } = req.query
+    let { user_id } = req.query
+
 
     await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
         delete resultData[0]['password']
         let data = {
             ...resultData[0],
         }
-        await user.getUserFollowers({ user_id }).then(([followersData, fieldData]) => {
-            const resultData = followersData?.map((result) => (result?.follower_id))
-            data = { ...data, followers: resultData || [] }
-        }).catch((error) => console.log(error))
-
-        await user.getUserFollowedIds({ user_id }).then(([followedData, fieldData]) => {
-            const resultData = followedData?.map((result) => (result?.followed_id))
-            data = { ...data, followed: resultData || [] }
-        }).catch((error) => console.log(error))
-
-        await book.getUserBooks({ user_id, status: 1 }).then(([books, fieldData]) => {
-            const resultData = books?.map((result) => (result.id))
-            data = { ...data, books: resultData || [] }
-        }).catch((error) => console.log(error))
-
-        await book.getUserBooks({ user_id, status: 0 }).then(([books, fieldData]) => {
-            const resultData = books?.map((result) => (result.id))
-            data = { ...data, drafts: resultData || [] }
-        }).catch((error) => console.log(error))
 
         const bookIds = data?.books?.map(e => e?.id?.toString()).filter(e => e)
 
@@ -139,23 +228,11 @@ exports.getUserProfile = async (req, res, next) => {
             data = { ...data, rating: Math.floor(sum / resultData?.length) || 0 }
         }).catch((error) => console.log(error))
 
-        await book.FavoriteBooks({ user_id }).then(([favorites, fieldData]) => {
-            const resultData = favorites?.map((result) => (result?.book_id))
-            data = { ...data, favoriteBooks: resultData || [] }
-        }).catch((error) => console.log(error))
-
-        await book.getMyLibarary({ user_id }).then(([library, fieldData]) => {
-            const resultData = library?.map((result) => (result?.book_id))
-            data = { ...data, mylibrary: resultData || [] }
-        }).catch((error) => console.log(error))
-
-
         await user.profileVisited({ user_id }).then(([profile, fieldData]) => {
             if (profile?.length) {
                 data = { ...data, visitedCount: profile[0]['COUNT(id)'] }
             }
         }).catch((error) => console.log(error))
-
 
         res.status(200).send({
             message: 'User profile fetched successfully!',
@@ -169,7 +246,6 @@ exports.getUserProfile = async (req, res, next) => {
     })
 
 }
-
 
 exports.visitProfile = async (req, res, next) => {
     const { user_id, visitors_id } = req.body
@@ -200,3 +276,99 @@ exports.getUserByIds = async (req, res, next) => {
         res.status(404).send({ message: "User Not Exist", status: 404, error, data })
     })
 }
+
+exports.getPremiumWriters = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { total: 0 }
+    const user_type = 2
+    await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+    await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
+        data = { ...data, data: writers || [] }
+        res.status(200).send({
+            message: 'Premium writers fetched successfully!',
+            status: 200,
+            statusText: 'OK',
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: error, status: 404 })
+    })
+
+}
+
+exports.getFounderWriters = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { total: 0 }
+    const user_type = 3
+    await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+    await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
+        data = { ...data, data: writers || [] }
+        res.status(200).send({
+            message: 'Founder writers fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
+}
+
+exports.getTopWriters = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { writers: [], total: 0 }
+
+    await user.getTopWriters({ limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+
+    await user.getTopWriters({ limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
+        data = { ...data, writers: writers }
+        res.status(200).send({
+            message: 'Founder writers fetched successfully!',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        console.log(error)
+        res.status(404).send({ message: "User Not Exist", status: 404, error })
+    })
+
+}
+
+exports.getBookCategories = async (req, res, next) => {
+    let data = {}
+    await user.getBookCategories().then(([categories, fieldData]) => {
+        data = { ...data, data: categories, statusText: 'Ok', status: 200, message: 'Categories fetched successfully!', }
+        res.status(200).send({ data })
+    }).catch((error) => {
+        console.error(error)
+        data = { ...data, message: "Something went wrong", status: 404, error }
+        res.status(404).send({ data })
+    })
+}
+
+exports.getBookTypes = async (req, res, next) => {
+    let data = {}
+    await user.getBookTypes().then(([categories, fieldData]) => {
+        data = { ...data, data: categories, statusText: 'Ok', status: 200, message: 'Categories fetched successfully!', }
+        res.status(200).send({ data })
+    }).catch((error) => {
+        console.error(error)
+        data = { ...data, message: "Something went wrong", status: 404, error }
+        res.status(404).send({ data })
+    })
+}
+//

@@ -21,16 +21,16 @@ exports.login = (req, res, next) => {
                         req.session.userData = userData
                         res.status(200).send({ data: userData, message: 'Logged In Successfully', status: 200, token });
                     } else {
-                        res.status(404).send({ error: 'Invalid Password' })
+                        res.status(404).send({ message: 'Invalid Password', status: 404 })
                     }
                 }).catch((error) => {
-                    res.status(404).send({ error: error, status: 404 })
+                    res.status(404).send({ message:error, status: 404 })
                 })
         } else {
             res.status(404).send({ error: 'User Not Exist', status: 404 })
         }
     }).catch((error) =>
-        res.status(500).send({ error: error, status: 500 })
+        res.status(500).send({  message:error, status: 500 })
     )
 
 }
@@ -46,21 +46,21 @@ exports.signUp = (req, res, next) => {
         } else {
             return bcrypt.hash(password, 12).then((hash) => {
                 user.userSignUp({ email, password: hash, profile_pic: imagePath, username }).then(([resAray, fieldResData]) => {
-                  const token = jwt.sign({ email }, 'my_secret_key', { expiresIn: '9h' })
-                  req.session.isLoggedIn = true
-                  req.session.userData = { email, password, username }
+                    const token = jwt.sign({ email }, 'my_secret_key', { expiresIn: '9h' })
+                    req.session.isLoggedIn = true
+                    req.session.userData = { email, password, username }
                     res.status(200).send({
-                        message: 'User Created Successfully !', data: { email, username, password: hash, profile_pic: imagePath,token }, status: 200
+                        message: 'User Created Successfully !', data: { email, username, password: hash, profile_pic: imagePath, token }, status: 200
                     })
                 }).catch((error) => {
-                    res.status(500).send({ error: error, status: 500 })
+                    res.status(500).send({ message:error, status: 500 })
                 })
             }).catch((error) => {
-                res.status(404).send({ error: error, status: 404 })
+                res.status(404).send({  message:error, status: 404 })
             })
         }
     }).catch((error) => {
-        res.status(500).send({ error: error, status: 500 })
+        res.status(500).send({ message:error, status: 500 })
     })
 }
 
@@ -78,4 +78,40 @@ exports.successLogin = (req, res, next) => {
 
 exports.successFbLogin = (req, res, next) => {
     res.status(200).send({ message: 'Logged In Successfully !', status: 200 })
+}
+
+exports.getSliderImages = (req, res, next) => {
+    let data = {}
+    auth.getSliderImages().then(([images, fieldResData]) => {
+        data = { ...data, images: images }
+        res.status(200).send({ message: 'OK', status: 200, data })
+    }).catch((error) => {
+        res.status(404).send({ message:error, status: 500 })
+    })
+}
+
+exports.booksandwriters = async (req, res, next) => {
+    const { search, limit, page } = req.query
+    let data = {}
+    await auth.searchBooksOrWriters({ search, limit: null, page: null }).then(([result, fieldResData]) => {
+        data = { ...data, totalBooks: result?.length }
+    }).catch((error) => console.error(error))
+
+    await auth.searchBooksOrWriters({ search, limit: limit || 10, page: page || 0 }).then(([result, fieldResData]) => {
+        data = { ...data, bookdata: { type: 'book', data: result } }
+
+    }).catch((error) => console.error(error))
+
+    await auth.searchWriters({ search, limit: null, page: null }).then(([result, fieldResData]) => {
+        data = { ...data, totalWriters: result?.length }
+    }).catch((error) => console.error(error))
+    await auth.searchWriters({ search, limit: limit || 10, page: page || 0 }).then(([result, fieldResData]) => {
+        data = { ...data, writer: { type: 'writer', data: result } }
+        res.status(200).send({ message: 'OK', status: 200, data })
+    }).catch((error) => {
+        res.status(404).send({
+           message: error
+        })
+    })
+
 }

@@ -9,4 +9,10 @@ router.get('/login/success' ,authCtrl.successLogin)
 
 router.get('/login/success/facebook' ,authCtrl.successFbLogin)
 
+router.get('/getSliderImages',authCtrl.getSliderImages);
+
+router.get('/booksAndwriters',authCtrl.booksandwriters);
+
+// booksandwriters
+
 module.exports = router;
