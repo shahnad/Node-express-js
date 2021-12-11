@@ -74,7 +74,7 @@ module.exports = class userModel {
 
     getUserFollowers = (params) => {
         const { user_id, limit, page } = params
-        const query = `SELECT * FROM followers WHERE followed_id = ${user_id} ORDER BY id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT followers.follower_id as id, users.email, users._id as user_id, users.username, users.profile_pic, users.coverPic FROM followers JOIN users ON users._id =followers.followed_id  WHERE followers.followed_id = ${user_id} ORDER BY followers.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 
