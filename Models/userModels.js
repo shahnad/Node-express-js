@@ -67,7 +67,7 @@ module.exports = class userModel {
 
     getUserData = (params) => {
         const { user_id } = params
-        const query = `SELECT _id as id,email, username,profile_pic as image,gender,user_type,bio,coverPic,created_at as joined_date  FROM users WHERE _id = ?`
+        const query = `SELECT _id as id,email, username as userName ,profile_pic as image,gender,user_type,bio,coverPic,created_at as joined_date  FROM users WHERE _id = ?`
         return db.execute(query, [user_id])
 
     }
