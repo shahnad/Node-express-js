@@ -196,15 +196,49 @@ exports.getBooksOftheWeeks = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], total: 0 }
 
-    await book.getBooksOfWeeks({ limit: null, page: null }).then(([total, fieldData]) => {
-        data = { ...data, total: total?.length }
-    }).catch((error) => {
-        console.log(error)
-    })
-
+  
     await book.getBooksOfWeeks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
-       
-        data = { ...data, data: rows }
+
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books of the week fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
+exports.latestReleases = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { data: [], total: 0 }
+
+  
+    await book.latestReleases({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books of the week fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
+
+exports.trendingBooks = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { data: [], }
+    await book.trendingBooks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
             message: 'Books of the week fetched successfully',
             status: 200,

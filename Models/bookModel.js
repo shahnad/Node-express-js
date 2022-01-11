@@ -110,7 +110,7 @@ module.exports = class bookModel {
     }
 
     getuserLibrary = ({ user_id, limit, page }) => {
-        const query = `SELECT DISTINCT  books.id as id , books.imageurl as image ,books.title, books.type, 
+        const query = `SELECT DISTINCT  books.id as id ,COUNT(id) OVER()  as total, books.imageurl as image ,books.title, books.type, 
            library.created_at as created  FROM library  JOIN books ON library.book_id = books.id WHERE library.user_id = ${user_id} AND books.status = 1 ORDER BY library.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
@@ -146,9 +146,21 @@ module.exports = class bookModel {
 
     getBooksOfWeeks = (params) => {
         const { limit, page } = params
-        const query = `SELECT id,title,imageurl as image,description,price,(SELECT username from users where _id = userid) as author,(SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,(SELECT AVG(rate) FROM rating where book_id = id) as rating, noOfReaders  FROM books ORDER BY noOfReaders DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT id,title,imageurl as image,title,COUNT(id) OVER()  as total,description,price,(SELECT username from users where _id = userid) as author,(SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,(SELECT AVG(rate) FROM rating where book_id = id) as rating, noOfReaders  FROM books ORDER BY noOfReaders DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 
+    latestReleases = (params) => {
+        const { limit, page } = params
+        const query = `SELECT id,title,imageurl as image,title,COUNT(id) OVER() as total,description,price,(SELECT username from users where _id = userid) as author,(SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,(SELECT AVG(rate) FROM rating where book_id = id) as rating, noOfReaders  FROM books ORDER BY created_at DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query)
+
+    }
+
+    trendingBooks = (params) => {
+        const { limit, page } = params
+        const query = `SELECT id,title,COUNT(id) OVER() as total,imageurl as image,description,price,(SELECT username from users where _id = userid) as author,(SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,(SELECT AVG(rate) FROM rating where book_id = id) as rating, noOfReaders  FROM books ORDER BY rating DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query)
+    }
 
 }

@@ -39,7 +39,15 @@ router.get('/getBooksByIds', bookCtrl.getBooksByIds);
 
 
 
-/*  getBooksByIds*/
+/*  getbooksOftheWeeks*/
 router.get('/getbooksOftheWeeks', bookCtrl.getBooksOftheWeeks);
+
+
+// latestReleases
+router.get('/latestReleases', bookCtrl.latestReleases);
+
+
+// trendingBooks
+router.get('/trendingBooks', bookCtrl.trendingBooks);
 
 module.exports = router;

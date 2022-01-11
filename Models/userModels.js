@@ -112,12 +112,12 @@ module.exports = class userModel {
 
     WritersByID = ({ user_type, limit, page }) => {
         let queries = [user_type]
-        let query = `SELECT _id AS id, email, username, profile_pic as image, User_type, created_at AS joinedDate ,rating FROM users  WHERE User_type = ${user_type}  ${limit ? ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
+        let query = `SELECT _id AS id,COUNT(_id) OVER() as total, email, username, profile_pic as image, User_type, created_at AS joinedDate ,rating FROM users  WHERE User_type = ${user_type}  ${limit ? ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
         return db.execute(query)
     }
 
     getTopWriters = ({ limit, page }) => {
-        let query = `SELECT _id AS id, email, username, profile_pic as image, User_type, created_at AS joinedDate ,rating FROM users  ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
+        let query = `SELECT _id AS id, email,COUNT(_id) OVER() as total, username, profile_pic as image, User_type, created_at AS joinedDate ,rating FROM users  ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
         return db.execute(query)
     }
 

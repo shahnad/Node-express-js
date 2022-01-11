@@ -196,17 +196,13 @@ exports.getuserLibrary = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
     await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
-        data = { ...data, total: library?.length || 0 }
-    }).catch((error) => console.error(error))
-
-    await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
-        data = { ...data, data: library || [] }
+        data = { ...data, data: library || [], total: library?.length ? library[0]['total'] : 0 }
         res.status(200).send({
             message: 'library books fetched successfully!',
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: error, status: 404,  }))
+    }).catch((error) => res.status(404).send({ message: error, status: 404, }))
 }
 
 
@@ -282,12 +278,6 @@ exports.getPremiumWriters = async (req, res, next) => {
     let data = { total: 0 }
     const user_type = 2
 
-    await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
-        data = { ...data, total: total?.length }
-    }).catch((error) => {
-        console.log(error)
-    })
-
     await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, data: writers || [] }
         res.status(200).send({
@@ -307,13 +297,9 @@ exports.getFounderWriters = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { total: 0 }
     const user_type = 3
-    await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
-        data = { ...data, total: total?.length }
-    }).catch((error) => {
-        console.log(error)
-    })
+
     await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
-        data = { ...data, data: writers || [] }
+        data = { ...data, data: writers || [], total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',
             status: 200,
@@ -330,14 +316,8 @@ exports.getTopWriters = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { writers: [], total: 0 }
 
-    await user.getTopWriters({ limit: null, page: null }).then(([total, fieldData]) => {
-        data = { ...data, total: total?.length }
-    }).catch((error) => {
-        console.log(error)
-    })
-
     await user.getTopWriters({ limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
-        data = { ...data, data: writers }
+        data = { ...data, data: writers, total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',
             status: 200,
