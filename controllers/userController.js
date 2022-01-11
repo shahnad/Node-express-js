@@ -281,11 +281,13 @@ exports.getPremiumWriters = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { total: 0 }
     const user_type = 2
+
     await user.WritersByID({ user_type, limit: null, page: null }).then(([total, fieldData]) => {
         data = { ...data, total: total?.length }
     }).catch((error) => {
         console.log(error)
     })
+
     await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, data: writers || [] }
         res.status(200).send({
@@ -335,7 +337,7 @@ exports.getTopWriters = async (req, res, next) => {
     })
 
     await user.getTopWriters({ limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
-        data = { ...data, writers: writers }
+        data = { ...data, data: writers }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',
             status: 200,

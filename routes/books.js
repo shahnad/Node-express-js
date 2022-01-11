@@ -38,4 +38,8 @@ router.post('/addToLibrary', bookCtrl.addToLibrary);
 router.get('/getBooksByIds', bookCtrl.getBooksByIds);
 
 
+
+/*  getBooksByIds*/
+router.get('/getbooksOftheWeeks', bookCtrl.getBooksOftheWeeks);
+
 module.exports = router;

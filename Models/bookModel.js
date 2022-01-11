@@ -140,12 +140,15 @@ module.exports = class bookModel {
     }
 
     getUserDrafts = ({ user_id, limit, page }) => {
-        // const query = `SELECT books.id as book_id,books.title as title, books.imageurl as image , 
-        // episodes._id as episode_id , episodes.created_at as writed_on ,episodes.status,
-        //  episodes.episode_no FROM books INNER JOIN episodes WHERE  books.id = episodes.book_id 
-        //  AND books.userid = ${user_id} AND episodes.status= 0 ORDER BY episodes._id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         const query = `SELECT DISTINCT id , imageurl as image ,title, type,price , created_at as published  FROM books  WHERE userid =${user_id} AND status = 0 ORDER BY id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
-
         return db.execute(query)
     }
+
+    getBooksOfWeeks = (params) => {
+        const { limit, page } = params
+        const query = `SELECT id,title,imageurl as image,description,price,userid as author,noOfReaders  FROM books ORDER BY noOfReaders DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query)
+    }
+
+
 }

@@ -48,8 +48,8 @@ exports.addEpisode = (req, res, next) => {
 }
 
 exports.rateEpisode = (req, res, next) => {
-    const { book_id, rate, rated_user_id, episode_id , writer_id } = req.body
-    book.rateMyEpisode({ book_id, rate, rated_user_id, episode_id,writer_id }).then(([rows], fieldData) => {
+    const { book_id, rate, rated_user_id, episode_id, writer_id } = req.body
+    book.rateMyEpisode({ book_id, rate, rated_user_id, episode_id, writer_id }).then(([rows], fieldData) => {
         res.status(200).send({
             message: 'Rated book successfully',
             book_id, rate, rated_user_id, episode_id,
@@ -190,4 +190,30 @@ exports.getBooksByIds = async (req, res, next) => {
         })
     })
 
+}
+
+exports.getBooksOftheWeeks = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { data: [], total: 0 }
+
+    await book.getBooksOfWeeks({ limit: null, page: null }).then(([total, fieldData]) => {
+        data = { ...data, total: total?.length }
+    }).catch((error) => {
+        console.log(error)
+    })
+
+    await book.getBooksOfWeeks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+       
+        data = { ...data, data: rows }
+        res.status(200).send({
+            message: 'Books of the week fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
 }
