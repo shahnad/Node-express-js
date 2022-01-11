@@ -146,7 +146,7 @@ module.exports = class bookModel {
 
     getBooksOfWeeks = (params) => {
         const { limit, page } = params
-        const query = `SELECT id,title,imageurl as image,description,price,userid as author,noOfReaders  FROM books ORDER BY noOfReaders DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT id,title,imageurl as image,description,price,(SELECT username from users where _id = userid) as author,(SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,(SELECT AVG(rate) FROM rating where book_id = id) as rating, noOfReaders  FROM books ORDER BY noOfReaders DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 
