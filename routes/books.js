@@ -51,6 +51,10 @@ router.get('/latestReleases', bookCtrl.latestReleases);
 router.get('/trendingBooks', bookCtrl.trendingBooks);
 
 
+// getBookDetaiilsById
+router.get('/getBookDetailsById', bookCtrl.getBookDetailsById);
+
+
 
 
 

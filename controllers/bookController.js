@@ -251,3 +251,23 @@ exports.trendingBooks = async (req, res, next) => {
         })
     })
 }
+
+exports.getBookDetailsById = async (req, res, next) => {
+    const { limit, page,bookId} = req.query
+   
+    
+    let data = { data: [], }
+    await book.getBookDetailsById({bookId, limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books bY id  fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
