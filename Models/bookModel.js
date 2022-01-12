@@ -110,8 +110,13 @@ module.exports = class bookModel {
     }
 
     getuserLibrary = ({ user_id, limit, page }) => {
-        const query = `SELECT DISTINCT  books.id as id ,COUNT(id) OVER()  as total, books.imageurl as image ,books.title, books.type, 
-           library.created_at as created  FROM library  JOIN books ON library.book_id = books.id WHERE library.user_id = ${user_id} AND books.status = 1 ORDER BY library.id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT DISTINCT (SELECT id FROM books WHERE id = book_id) as id,COUNT(id) OVER()  as total, 
+        (SELECT title FROM books WHERE id = book_id) as title,
+        (SELECT type FROM books WHERE id = book_id) as type,
+        (SELECT AVG(rate) FROM rating WHERE rating.id = book_id) as rating,
+        (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = library.book_id) AS duration,
+        (SELECT imageurl FROM books WHERE id = book_id) as image , created_at as created FROM library WHERE user_id = ${user_id}
+        ORDER BY id DESC  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 
@@ -127,9 +132,13 @@ module.exports = class bookModel {
         return db.execute(query, [user_id])
 
     }
-    getUserBooks = (params) => {
+    getUserWrirings = (params) => {
         const { user_id, limit, page } = params
-        const query = `SELECT DISTINCT id , imageurl as image ,title, type,price , created_at as published  FROM books  WHERE userid =${user_id}  ORDER BY id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT DISTINCT id ,COUNT(id) OVER()  as total,  imageurl as image ,title, type,price ,
+        (SELECT AVG(rate) FROM rating WHERE rating.id = id) as rating,
+        (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,
+         created_at as created  FROM books  WHERE userid =${user_id} AND Status = 1 ORDER BY id DESC 
+          ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
 
     }
@@ -140,7 +149,11 @@ module.exports = class bookModel {
     }
 
     getUserDrafts = ({ user_id, limit, page }) => {
-        const query = `SELECT DISTINCT id , imageurl as image ,title, type,price , created_at as published  FROM books  WHERE userid =${user_id} AND status = 0 ORDER BY id DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT DISTINCT id , COUNT(id) OVER()  as total,imageurl as image ,title, type,price ,
+        (SELECT AVG(rate) FROM rating WHERE rating.id = id) as rating,
+        (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,
+         created_at as created  FROM books  WHERE userid =${user_id} AND status = 0 ORDER BY id DESC
+          ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 

@@ -50,4 +50,8 @@ router.get('/latestReleases', bookCtrl.latestReleases);
 // trendingBooks
 router.get('/trendingBooks', bookCtrl.trendingBooks);
 
+
+
+
+
 module.exports = router;
