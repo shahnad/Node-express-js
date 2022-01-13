@@ -273,7 +273,7 @@ exports.getEpisodesById = async (req, res, next) => {
 }
 
 exports.getBookDetailsById = async (req, res, next) => {
-    const { id } = req.body
+    const { id } = req.query
     let data = { data: [], }
 
     await book.getBookDetailsById({ id }).then(([rows], fieldData) => {
@@ -284,12 +284,16 @@ exports.getBookDetailsById = async (req, res, next) => {
             data: error
         })
     })
-    const category = await data.data?.length && data.data?.map(e => e.category)
+    console.log(req.user,'aaaaaaaaaaa');
+    
+    
+    const category = await data.data?.length && data.data?.map(e => e.categories)
+
     await book.getCategories({ category }).then(([rows], fieldData) => {
         if (rows?.length) {
             const newArray = rows.map(e => e?.categoryName)
             const newmappedData = data.data.map(e => {
-                return { ...e, category: newArray }
+                return { ...e, categories: rows }
             })
             data = { ...data, data: newmappedData }
         }

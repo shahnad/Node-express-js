@@ -202,13 +202,15 @@ module.exports = class bookModel {
     }
     getEpisodesById = (params) => {
         const { bookId, limit, page } = params
-        const query = `SELECT DISTINCT _id  as id, episode_no, book_id ,
+        const query = `SELECT  _id  as id, episode_no, book_id ,
         COUNT(_id) OVER() as total,
         (SELECT title FROM books where books.id = book_id) as title , 
+        (SELECT imageurl FROM books where books.id = book_id) as image , 
+         duration,
         (SELECT created_at FROM books where books.id = book_id) as published ,   
         (SELECT COUNT(id) FROM reading WHERE reading.book_id = book_id) as views,
         (SELECT AVG(rate) FROM rating where rating.book_id = book_id) as rating FROM episodes 
-        WHERE book_id=${bookId} ORDER BY id ASC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        WHERE book_id=${bookId} ORDER BY id ASC ${limit ? ` LIMIT ${limit} OFFSET ${page}` : ''}`
 
         return db.execute(query)
 
@@ -216,8 +218,9 @@ module.exports = class bookModel {
 
     getBookDetailsById = (params) => {
         const { id } = params
-        const query = `SELECT id , title , imageurl as image , category, description, 
+        const query = `SELECT id , title , imageurl as image , category as categories, description, 
         (SELECT username from users where _id = id) as author, created_at as created ,
+        (SELECT profile_pic from users where _id = id) as authorImage,
         price,  (SELECT COUNT(id) FROM reading WHERE reading.book_id = id) as views,
         (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,
         (SELECT COUNT(_id) FROM episodes WHERE episodes.book_id = id) AS parts,
@@ -229,7 +232,7 @@ module.exports = class bookModel {
 
     getCategories = (params) => {
         const { category } = params
-        const query = `SELECT categoryName FROM bookcategories WHERE _id IN (${category})`
+        const query = `SELECT categoryName as title , _id as id  FROM bookcategories  WHERE _id IN (${category})`
         return db.execute(query)
 
 
