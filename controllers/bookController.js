@@ -196,7 +196,7 @@ exports.getBooksOftheWeeks = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], total: 0 }
 
-  
+
     await book.getBooksOfWeeks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
 
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
@@ -217,7 +217,7 @@ exports.latestReleases = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], total: 0 }
 
-  
+
     await book.latestReleases({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
@@ -252,12 +252,12 @@ exports.trendingBooks = async (req, res, next) => {
     })
 }
 
-exports.getBookDetailsById = async (req, res, next) => {
-    const { limit, page,bookId} = req.query
-   
-    
+exports.getEpisodesById = async (req, res, next) => {
+    const { limit, page, bookId } = req.query
+
+
     let data = { data: [], }
-    await book.getBookDetailsById({bookId, limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+    await book.getEpisodesById({ bookId, limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
             message: 'Books bY id  fetched successfully',
@@ -270,4 +270,43 @@ exports.getBookDetailsById = async (req, res, next) => {
             data: error
         })
     })
+}
+
+exports.getBookDetailsById = async (req, res, next) => {
+    const { id } = req.body
+    let data = { data: [], }
+
+    await book.getBookDetailsById({ id }).then(([rows], fieldData) => {
+        data = { ...data, data: rows }
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+    const category = await data.data?.length && data.data?.map(e => e.category)
+    await book.getCategories({ category }).then(([rows], fieldData) => {
+        if (rows?.length) {
+            const newArray = rows.map(e => e?.categoryName)
+            const newmappedData = data.data.map(e => {
+                return { ...e, category: newArray }
+            })
+            data = { ...data, data: newmappedData }
+        }
+        res.status(200).send({
+            message: 'Books Details fetched successfully',
+            status: 200,
+            data
+        })
+
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong dw",
+            data: error
+        })
+    })
+
+
+
+
 }

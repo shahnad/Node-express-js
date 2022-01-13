@@ -200,7 +200,7 @@ module.exports = class bookModel {
         noOfReaders  FROM books ORDER BY rating DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
-    getBookDetailsById = (params) => {
+    getEpisodesById = (params) => {
         const { bookId, limit, page } = params
         const query = `SELECT DISTINCT _id  as id, episode_no, book_id ,
         COUNT(_id) OVER() as total,
@@ -213,6 +213,28 @@ module.exports = class bookModel {
         return db.execute(query)
 
     }
+
+    getBookDetailsById = (params) => {
+        const { id } = params
+        const query = `SELECT id , title , imageurl as image , category, description, 
+        (SELECT username from users where _id = id) as author, created_at as created ,
+        price,  (SELECT COUNT(id) FROM reading WHERE reading.book_id = id) as views,
+        (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,
+        (SELECT COUNT(_id) FROM episodes WHERE episodes.book_id = id) AS parts,
+        (SELECT AVG(rate) FROM rating where rating.book_id = id) as rating 
+        FROM books WHERE id = ${id} ORDER BY id DESC`
+        return db.execute(query)
+
+    }
+
+    getCategories = (params) => {
+        const { category } = params
+        const query = `SELECT categoryName FROM bookcategories WHERE _id IN (${category})`
+        return db.execute(query)
+
+
+    }
+
 
 
 }
