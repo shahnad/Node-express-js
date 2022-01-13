@@ -38,4 +38,29 @@ router.post('/addToLibrary', bookCtrl.addToLibrary);
 router.get('/getBooksByIds', bookCtrl.getBooksByIds);
 
 
+
+/*  getbooksOftheWeeks*/
+router.get('/getbooksOftheWeeks', bookCtrl.getBooksOftheWeeks);
+
+
+// latestReleases
+router.get('/latestReleases', bookCtrl.latestReleases);
+
+
+// trendingBooks
+router.get('/trendingBooks', bookCtrl.trendingBooks);
+
+
+// getEpisodesById
+router.get('/getEpisodesById', bookCtrl.getEpisodesById);
+
+
+
+// getBookDetaiilsById
+router.get('/getBookDetailsById', bookCtrl.getBookDetailsById);
+
+
+
+
+
 module.exports = router;

@@ -48,8 +48,8 @@ exports.addEpisode = (req, res, next) => {
 }
 
 exports.rateEpisode = (req, res, next) => {
-    const { book_id, rate, rated_user_id, episode_id , writer_id } = req.body
-    book.rateMyEpisode({ book_id, rate, rated_user_id, episode_id,writer_id }).then(([rows], fieldData) => {
+    const { book_id, rate, rated_user_id, episode_id, writer_id } = req.body
+    book.rateMyEpisode({ book_id, rate, rated_user_id, episode_id, writer_id }).then(([rows], fieldData) => {
         res.status(200).send({
             message: 'Rated book successfully',
             book_id, rate, rated_user_id, episode_id,
@@ -189,5 +189,128 @@ exports.getBooksByIds = async (req, res, next) => {
             data: error
         })
     })
+
+}
+
+exports.getBooksOftheWeeks = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { data: [], total: 0 }
+
+
+    await book.getBooksOfWeeks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books of the week fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
+exports.latestReleases = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { data: [], total: 0 }
+
+
+    await book.latestReleases({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books of the week fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
+
+exports.trendingBooks = async (req, res, next) => {
+    const { limit, page } = req.query
+    let data = { data: [], }
+    await book.trendingBooks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books of the week fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
+exports.getEpisodesById = async (req, res, next) => {
+    const { limit, page, bookId } = req.query
+
+
+    let data = { data: [], }
+    await book.getEpisodesById({ bookId, limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+        data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+        res.status(200).send({
+            message: 'Books bY id  fetched successfully',
+            status: 200,
+            data
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+}
+
+exports.getBookDetailsById = async (req, res, next) => {
+    const { id } = req.query
+    let data = { data: [], }
+
+    await book.getBookDetailsById({ id }).then(([rows], fieldData) => {
+        data = { ...data, data: rows }
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong",
+            data: error
+        })
+    })
+    console.log(req.user,'aaaaaaaaaaa');
+    
+    
+    const category = await data.data?.length && data.data?.map(e => e.categories)
+
+    await book.getCategories({ category }).then(([rows], fieldData) => {
+        if (rows?.length) {
+            const newArray = rows.map(e => e?.categoryName)
+            const newmappedData = data.data.map(e => {
+                return { ...e, categories: rows }
+            })
+            data = { ...data, data: newmappedData }
+        }
+        res.status(200).send({
+            message: 'Books Details fetched successfully',
+            status: 200,
+            data
+        })
+
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong dw",
+            data: error
+        })
+    })
+
+
+
 
 }
