@@ -257,7 +257,7 @@ exports.getEpisodesById = async (req, res, next) => {
 
 
     let data = { data: [], }
-    await book.getEpisodesById({ bookId, limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+    await book.getEpisodesById({ bookId, limit: limit || 10, page:limit* page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
             message: 'Books bY id  fetched successfully',

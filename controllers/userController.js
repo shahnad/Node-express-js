@@ -109,11 +109,9 @@ exports.followUser = (req, res, next) => {
 exports.getUserFollowings = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-    await user.getUserFollowedIds({ user_id, limit: null, page: null }).then(([followers, fieldData]) => {
-        data = { ...data, total: followers?.length || 0 }
-    }).catch((error) => { console.error(error) })
-    await user.getUserFollowedIds({ user_id, limit: limit || 10, page: page || 0 }).then(([followedData, fieldData]) => {
-        data = { ...data, data: followedData || [] }
+  
+    await user.getUserFollowedIds({ user_id, limit: limit || 10, page:limit * page || 0 }).then(([followedData, fieldData]) => {
+        data = { ...data, data: followedData || [], total: followedData?.length ? followedData[0]['total'] : 0  }
         res.status(200).send({
             message: 'User Followings fetched successfully!',
             status: 200,
@@ -126,12 +124,9 @@ exports.getUserFollowings = async (req, res, next) => {
 exports.getUserFollowers = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-    await user.getUserFollowers({ user_id, limit: null, page: null }).then(([followers, fieldData]) => {
-        data = { ...data, total: followers?.length || 0 }
-    }).catch((error) => { console.error(error) })
 
-    await user.getUserFollowers({ user_id, limit: limit || 10, page: page || 0 }).then(([followers, fieldData]) => {
-        data = { ...data, data: followers || [] }
+    await user.getUserFollowers({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([followers, fieldData]) => {
+        data = { ...data, data: followers || [] , total: followers?.length ? followers[0]['total'] : 0 }
         res.status(200).send({
             message: 'User followers fetched successfully!',
             status: 200,
@@ -144,9 +139,9 @@ exports.getuserWritings = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
 
-  
-    await book.getUserWrirings({ user_id, limit: limit || 10, page: page || 0 }).then(([books, fieldData]) => {
-        data = { ...data, data: books || [], total: books?.length ? books[0]['total'] : 0  }
+
+    await book.getUserWrirings({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([books, fieldData]) => {
+        data = { ...data, data: books || [], total: books?.length ? books[0]['total'] : 0 }
         res.status(200).send({
             message: 'User writings fetched successfully!',
             status: 200,
@@ -158,9 +153,9 @@ exports.getuserWritings = async (req, res, next) => {
 exports.getUserDrafts = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
- 
-    await book.getUserDrafts({ user_id, limit, page }).then(([drafts, fieldData]) => {
-        data = { ...data, data: drafts || [] ,total: drafts?.length ? drafts[0]['total'] : 0 }
+   
+    await book.getUserDrafts({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([drafts, fieldData]) => {
+        data = { ...data, data: drafts || [], total: drafts?.length ? drafts[0]['total'] : 0 }
         res.status(200).send({
             message: 'Drafts fetched successfully!',
             status: 200,
@@ -172,12 +167,9 @@ exports.getUserDrafts = async (req, res, next) => {
 exports.getuserFavoriteBooks = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-    // await book.FavoriteBooks({ user_id, limit: null, page: null }).then(([favoriteBooks, fieldData]) => {
-    //     data = { ...data, total: favoriteBooks?.length || 0 }
-    // }).catch((error) => console.error(error))
 
-    await book.FavoriteBooks({ user_id, limit: limit || 10, page: page || 0 }).then(([favoriteBooks, fieldData]) => {
-        data = { ...data, data: favoriteBooks || [] , total: favoriteBooks?.length ? favoriteBooks[0]['total'] : 0 }
+    await book.FavoriteBooks({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([favoriteBooks, fieldData]) => {
+        data = { ...data, data: favoriteBooks || [], total: favoriteBooks?.length ? favoriteBooks[0]['total'] : 0 }
         res.status(200).send({
             message: 'favorite books fetched successfully!',
             status: 200,
@@ -189,7 +181,7 @@ exports.getuserFavoriteBooks = async (req, res, next) => {
 exports.getuserLibrary = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-    await book.getuserLibrary({ user_id, limit: limit || 10, page: page || 0 }).then(([library, fieldData]) => {
+    await book.getuserLibrary({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([library, fieldData]) => {
         data = { ...data, data: library || [], total: library?.length ? library[0]['total'] : 0 }
         res.status(200).send({
             message: 'library books fetched successfully!',
