@@ -276,6 +276,8 @@ exports.getBookDetailsById = async (req, res, next) => {
     const { id } = req.query
     let data = { data: [], }
 
+    // getCategories
+
     await book.getBookDetailsById({ id }).then(([rows], fieldData) => {
         data = { ...data, data: rows }
     }).catch((error) => {

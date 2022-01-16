@@ -109,9 +109,9 @@ exports.followUser = (req, res, next) => {
 exports.getUserFollowings = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-  
-    await user.getUserFollowedIds({ user_id, limit: limit || 10, page:limit * page || 0 }).then(([followedData, fieldData]) => {
-        data = { ...data, data: followedData || [], total: followedData?.length ? followedData[0]['total'] : 0  }
+
+    await user.getUserFollowedIds({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([followedData, fieldData]) => {
+        data = { ...data, data: followedData || [], total: followedData?.length ? followedData[0]['total'] : 0 }
         res.status(200).send({
             message: 'User Followings fetched successfully!',
             status: 200,
@@ -126,7 +126,7 @@ exports.getUserFollowers = async (req, res, next) => {
     let data = {}
 
     await user.getUserFollowers({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([followers, fieldData]) => {
-        data = { ...data, data: followers || [] , total: followers?.length ? followers[0]['total'] : 0 }
+        data = { ...data, data: followers || [], total: followers?.length ? followers[0]['total'] : 0 }
         res.status(200).send({
             message: 'User followers fetched successfully!',
             status: 200,
@@ -153,7 +153,7 @@ exports.getuserWritings = async (req, res, next) => {
 exports.getUserDrafts = async (req, res, next) => {
     const { user_id, limit, page } = req.query
     let data = {}
-   
+
     await book.getUserDrafts({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([drafts, fieldData]) => {
         data = { ...data, data: drafts || [], total: drafts?.length ? drafts[0]['total'] : 0 }
         res.status(200).send({
@@ -231,28 +231,19 @@ exports.getUserProfile = async (req, res, next) => {
 
 exports.getWriterProfile = async (req, res, next) => {
     let { user_id } = req.query
-
+console.log(req.session.userData,'ssssssss');
 
     await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
+        let data = {}
         delete resultData[0]['password']
-        let data = {
-            ...resultData[0],
-        }
-
-        const bookIds = data?.books?.map(e => e?.id?.toString()).filter(e => e)
-
-        bookIds?.length > 0 && await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
-            const resultData = rating?.map((result) => (result?.rate)) || []
-            const sum = resultData.reduce((a, b) => a + b, 0) || 0
-            data = { ...data, rating: Math.floor(sum / resultData?.length) || 0 }
-        }).catch((error) => console.log(error))
-
-        await user.profileVisited({ user_id }).then(([profile, fieldData]) => {
-            if (profile?.length) {
-                data = { ...data, visitedCount: profile[0]['COUNT(id)'] }
+        const categoryIds = resultData[0]['categories']
+        await book.getCategories({ category: categoryIds }).then(([rows, fieldData]) => {
+            data = {
+                ...resultData[0],
+                categories: rows || [],
+                rating: resultData[0]?.rating < 3 ||  resultData[0]?.rating ===null ? 3:resultData[0]?.rating
             }
-        }).catch((error) => console.log(error))
-
+        }).catch((error) => res.status(404).send({ message: error, status: 404, error }))
         res.status(200).send({
             message: 'User profile fetched successfully!',
             status: 200,
@@ -265,7 +256,7 @@ exports.getWriterProfile = async (req, res, next) => {
     })
 
 }
-// 
+
 
 exports.visitProfile = async (req, res, next) => {
     const { user_id, visitors_id } = req.body

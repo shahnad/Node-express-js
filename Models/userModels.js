@@ -11,7 +11,7 @@ module.exports = class userModel {
     // signup user
     userSignUp(data) {
         const { email, password, profile_pic, username } = data
-        console.log(data,'yyyyyyyyyyyyyyyy');
+        console.log(data, 'yyyyyyyyyyyyyyyy');
         const query = `INSERT INTO users (email, password,profile_pic, username, created_at, updated_at) VALUES (?,?,?,?,?,?)`
         return db.execute(query, [email, password, profile_pic, username, new Date(), new Date()])
     }
@@ -68,7 +68,18 @@ module.exports = class userModel {
 
     getUserData = (params) => {
         const { user_id } = params
-        const query = `SELECT _id as id,email, username as userName ,profile_pic as image,gender,user_type,bio,coverPic,created_at as joined_date  FROM users WHERE _id = ?`
+        const query = `SELECT _id as id,
+        email,
+        username as userName,
+        profile_pic as image,
+        bio,
+        coverPic,
+        (SELECT AVG(rate) FROM writerrating WHERE writerrating.user_id = ${user_id}) AS rating,
+        (SELECT COUNT(follower_id) FROM followers WHERE followers.follower_id = ${user_id}) AS followers,
+        (SELECT COUNT(id) FROM books WHERE books.userid = ${user_id}) AS books,
+        (SELECT category FROM books WHERE books.id = ${user_id}) as categories,
+        created_at as joined
+        FROM users WHERE _id = ?`
         return db.execute(query, [user_id])
 
     }
