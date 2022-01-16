@@ -21,16 +21,18 @@ exports.login = (req, res, next) => {
                         req.session.userData = userData
                         res.status(200).send({ data: userData, message: 'Logged In Successfully', status: 200, token });
                     } else {
+
                         res.status(404).send({ message: 'Invalid Password', status: 404 })
                     }
                 }).catch((error) => {
-                    res.status(404).send({ message:error, status: 404 })
+                    console.log(JSON.stringify(error));
+                    res.status(404).send({ message: error, status: 404 })
                 })
         } else {
-            res.status(404).send({ error: 'User Not Exist', status: 404 })
+            res.status(404).send({ error: "You're trying with a wrong credentials.Please Try again", status: 404 })
         }
     }).catch((error) =>
-        res.status(500).send({  message:error, status: 500 })
+        res.status(500).send({ message: error, status: 500 })
     )
 
 }
@@ -40,9 +42,13 @@ exports.signUp = (req, res, next) => {
     const { email, password, username } = req.body
     const imageFile = req.file || {}
     const imagePath = imageFile?.filename ? `/images/${imageFile?.filename}` : ''
+
     auth.findOne({ email: email }).then(([rows, fieldData]) => {
         if (rows.length) {
-            res.status(404).send({ data: [], message: "Email is already exist. Please Try with another email" })
+            res.status(404).send({
+                data: [],
+                message: "Email is already exist. Please Try with another email"
+            })
         } else {
             return bcrypt.hash(password, 12).then((hash) => {
                 user.userSignUp({ email, password: hash, profile_pic: imagePath, username }).then(([resAray, fieldResData]) => {
@@ -50,17 +56,26 @@ exports.signUp = (req, res, next) => {
                     req.session.isLoggedIn = true
                     req.session.userData = { email, password, username }
                     res.status(200).send({
-                        message: 'User Created Successfully !', data: { email, username, password: hash, profile_pic: imagePath, token }, status: 200
+                        message: 'User Created Successfully !', data: {
+                            id: resAray?.insertId,
+                            email,
+                            username,
+                            password: hash,
+                            profile_pic: imagePath,
+                            token
+                        }, status: 200
                     })
                 }).catch((error) => {
-                    res.status(500).send({ message:error, status: 500 })
+                    console.log(JSON.stringify(error));
+                    res.status(500).send({ message: error, status: 500 })
                 })
             }).catch((error) => {
-                res.status(404).send({  message:error, status: 404 })
+                console.log(JSON.stringify(error));
+                res.status(404).send({ message: error, status: 404 })
             })
         }
     }).catch((error) => {
-        res.status(500).send({ message:error, status: 500 })
+        res.status(500).send({ message: error, status: 500 })
     })
 }
 
@@ -86,31 +101,27 @@ exports.getSliderImages = (req, res, next) => {
         data = { ...data, images: images }
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => {
-        res.status(404).send({ message:error, status: 500 })
+        res.status(404).send({ message: error, status: 500 })
     })
 }
 
 exports.booksandwriters = async (req, res, next) => {
     const { search, limit, page } = req.query
     let data = {}
-    await auth.searchBooksOrWriters({ search, limit: null, page: null }).then(([result, fieldResData]) => {
-        data = { ...data, totalBooks: result?.length }
-    }).catch((error) => console.error(error))
 
-    await auth.searchBooksOrWriters({ search, limit: limit || 10, page: page || 0 }).then(([result, fieldResData]) => {
-        data = { ...data, bookdata: { type: 'book', data: result } }
+
+    await auth.searchBooks({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
+        data = { ...data, book: { data: result, total: result?.length ? result[0]['total'] : 0 } }
 
     }).catch((error) => console.error(error))
 
-    await auth.searchWriters({ search, limit: null, page: null }).then(([result, fieldResData]) => {
-        data = { ...data, totalWriters: result?.length }
-    }).catch((error) => console.error(error))
-    await auth.searchWriters({ search, limit: limit || 10, page: page || 0 }).then(([result, fieldResData]) => {
-        data = { ...data, writer: { type: 'writer', data: result } }
+
+    await auth.searchWriters({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
+        data = { ...data, writer: { data: result, total: result?.length ? result[0]['total'] : 0 } }
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => {
         res.status(404).send({
-           message: error
+            message: error
         })
     })
 

@@ -23,6 +23,9 @@ router.get('/getUsersByIds', isAuth, userCtrl.getUserByIds)
 // Get USER PROFILE
 router.get('/getUserProfile', isAuth, userCtrl.getUserProfile)
 
+// Get USER PROFILE
+router.get('/getWriterProfile',  userCtrl.getWriterProfile)
+
 
 
 // Post USER PROFILE

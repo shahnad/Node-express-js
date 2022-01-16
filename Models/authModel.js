@@ -33,12 +33,21 @@ module.exports = class authModel {
         return db.execute(query)
     }
 
-    searchBooksOrWriters({ search, limit, page }) {
-        const query = `SELECT id , title , imageurl as image , category , type , userid , description , price FROM books WHERE title LIKE "%${search}%" OR description LIKE "%${search}%"  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+    searchBooks({ search, limit, page }) {
+        const query = `SELECT id ,COUNT(id) OVER() as total, title , 
+        imageurl as image , category ,
+         type , userid , description ,
+          price FROM books WHERE title LIKE "%${search}%" OR 
+          description LIKE "%${search}%"  
+          ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
         return db.execute(query)
     }
     searchWriters({ search, limit, page }) {
-        const query = `SELECT _id as id, email,username,profile_pic,coverPic as cover_pic,user_type,bio  FROM users WHERE email LIKE "%${search}%" OR username LIKE "%${search}%"  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        const query = `SELECT _id as id,COUNT(_id) OVER() as total,
+        email,
+        username,profile_pic,
+        coverPic as cover_pic,user_type,bio  FROM users WHERE email LIKE "%${search}%" OR
+        username LIKE "%${search}%"  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
         return db.execute(query)
     }
 }

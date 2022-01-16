@@ -13,6 +13,8 @@ router.get('/getSliderImages',authCtrl.getSliderImages);
 
 router.get('/booksAndwriters',authCtrl.booksandwriters);
 
+
+
 // booksandwriters
 
 module.exports = router;

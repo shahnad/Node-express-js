@@ -11,6 +11,7 @@ module.exports = class userModel {
     // signup user
     userSignUp(data) {
         const { email, password, profile_pic, username } = data
+        console.log(data,'yyyyyyyyyyyyyyyy');
         const query = `INSERT INTO users (email, password,profile_pic, username, created_at, updated_at) VALUES (?,?,?,?,?,?)`
         return db.execute(query, [email, password, profile_pic, username, new Date(), new Date()])
     }
