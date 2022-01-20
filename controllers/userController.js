@@ -2,7 +2,8 @@ const userModel = require('../Models/userModels');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const bookModel = require('../Models/bookModel');
-const crypto = require('../crypto/index')
+const crypto = require('../crypto/index');
+const { log } = require('console');
 const user = new userModel()
 
 const book = new bookModel()
@@ -201,8 +202,9 @@ exports.getUserProfile = async (req, res, next) => {
         let data = {
             ...resultData[0],
         }
+        console.log(resultData,"AAAAAAAAAAAAAAAA");
 
-        const bookIds = data?.books?.map(e => e?.id?.toString()).filter(e => e)
+        const bookIds = resultData?.length && resultData?.map(e => e?.id?.toString()).filter(e => e) 
 
         bookIds?.length > 0 && await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
             const resultData = rating?.map((result) => (result?.rate)) || []
@@ -389,12 +391,13 @@ exports.starWriters = async (req, res, next) => {
                 let checkData = await user.getUserBooksbyId({ id }).then(([data, err]) => {
                     newArray.push({ ...users[index], bookList: data || [] })
                 }).catch((err) => {
+                    console.log(error,"wwwwwwwwwwww")
                     res.status(404).send({ data: err })
                 })
             }
             res.status(200).send({ ...data, data: newArray })
         }).catch((error) => {
-            console.error(error)
+            console.log(error,"iiiiiiiiiiiiio")
             data = { ...data, message: "Something went wrong", status: 404, error }
             res.status(404).send({ data })
         })
@@ -403,4 +406,21 @@ exports.starWriters = async (req, res, next) => {
 
 
 
+}
+
+
+exports.getUserBooksById = async (req, res, next) => {
+    const { limit, page, id } = req.query
+    let data = {}
+    await user.getUserBooksById({ limit: limit || 10, page: limit * page || 0, id }).then(([rows, fieldData]) => {
+        data = {
+            ...data, data: rows || [], total: rows?.length ? rows[0]['total'] : 0,
+            statusText: 'Ok', status: 200, message: 'Categories fetched successfully!',
+        }
+        res.status(200).send({ data })
+    }).catch((error) => {
+        console.error(error)
+        data = { ...data, message: "Something went wrong", status: 404, error }
+        res.status(404).send({ data })
+    })
 }

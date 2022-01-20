@@ -74,7 +74,7 @@ module.exports = class userModel {
         profile_pic as image,
         bio,
         coverPic,
-        (SELECT AVG(rate) FROM writerrating WHERE writerrating.user_id = ${user_id}) AS rating,
+        (SELECT AVG(rate) FROM rating WHERE book_id = ${user_id}) AS rating,
         (SELECT COUNT(follower_id) FROM followers WHERE followers.follower_id = ${user_id}) AS followers,
         (SELECT COUNT(id) FROM books WHERE books.userid = ${user_id}) AS books,
         (SELECT category FROM books WHERE books.id = ${user_id}) as categories,
@@ -166,4 +166,20 @@ module.exports = class userModel {
         const query = `SELECT id, title ,userid from books where userid = (${id})`;
         return db.execute(query)
     }
+
+    getUserBooksById = (params) => {
+        const { limit, page, id } = params
+        const query = `SELECT id,  COUNT(id) OVER() as total,
+        (SELECT AVG(rate) FROM rating WHERE book_id = id) AS rating,
+        (SELECT SUM(views) FROM reading WHERE reading.id = ${id}) as views,
+        imageurl as image,
+        (SELECT SUM(duration) FROM episodes WHERE book_id =id) as duration , 
+        created_at as published_on,
+        title ,userid from books where userid = (${id}) 
+        ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`;
+        return db.execute(query)
+
+    }
+
+
 }

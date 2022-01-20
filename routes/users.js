@@ -62,6 +62,11 @@ router.get('/getBookCategories', isAuth, userCtrl.getBookCategories)
 
 router.get('/getBookTypes', isAuth, userCtrl.getBookTypes)
 
+router.get('/getUserBooksById', userCtrl.getUserBooksById);
+
 router.get('/starWriters', userCtrl.starWriters);
+
+// 
+// getUserBook
 
 module.exports = router;
