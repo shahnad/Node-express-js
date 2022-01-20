@@ -36,17 +36,23 @@ module.exports = class authModel {
     searchBooks({ search, limit, page }) {
         const query = `SELECT id ,COUNT(id) OVER() as total, title , 
         imageurl as image , category ,
-         type , userid , description ,
-          price FROM books WHERE title LIKE "%${search}%" OR 
-          description LIKE "%${search}%"  
-          ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
+        (SELECT AVG(rate) FROM rating where book_id = id) as rating,
+        type , userid , description ,
+        (SELECT SUM(views) FROM reading WHERE book_id = id) as views,
+        (SELECT SUM(duration) FROM episodes WHERE book_id =id) as duration, 
+        price FROM books WHERE title LIKE "%${search}%" OR 
+        description LIKE "%${search}%"  
+        ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
         return db.execute(query)
     }
     searchWriters({ search, limit, page }) {
         const query = `SELECT _id as id,COUNT(_id) OVER() as total,
         email,
-        username,profile_pic,
-        coverPic as cover_pic,user_type,bio  FROM users WHERE email LIKE "%${search}%" OR
+        username,profile_pic as image,
+        (SELECT AVG(rate) FROM rating where writer_id = _id) as rating,
+        (SELECT COUNT(id) FROM followers where followed_id = _id) as followers,
+        (SELECT COUNT(id) FROM books where userid = _id) as books,
+        coverPic as cover_pic,user_type  FROM users WHERE email LIKE "%${search}%" OR
         username LIKE "%${search}%"  ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''} `
         return db.execute(query)
     }

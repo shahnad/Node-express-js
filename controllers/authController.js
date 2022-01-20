@@ -2,6 +2,7 @@ const authModel = require('../Models/authModel');
 const userModel = require('../Models/userModels')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const e = require('express');
 
 const auth = new authModel()
 const user = new userModel()
@@ -109,7 +110,6 @@ exports.booksandwriters = async (req, res, next) => {
     const { search, limit, page } = req.query
     let data = {}
 
-
     await auth.searchBooks({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
         data = { ...data, book: { data: result, total: result?.length ? result[0]['total'] : 0 } }
 
@@ -117,11 +117,14 @@ exports.booksandwriters = async (req, res, next) => {
 
 
     await auth.searchWriters({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
+        
         data = { ...data, writer: { data: result, total: result?.length ? result[0]['total'] : 0 } }
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => {
+
         res.status(404).send({
-            message: error
+            message: error,
+
         })
     })
 
