@@ -197,7 +197,7 @@ exports.getBooksOftheWeeks = async (req, res, next) => {
     let data = { data: [], total: 0 }
 
 
-    await book.getBooksOfWeeks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+    await book.getBooksOfWeeks({ limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
 
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
@@ -218,7 +218,7 @@ exports.latestReleases = async (req, res, next) => {
     let data = { data: [], total: 0 }
 
 
-    await book.latestReleases({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+    await book.latestReleases({ limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
             message: 'Books of the week fetched successfully',
@@ -237,7 +237,7 @@ exports.latestReleases = async (req, res, next) => {
 exports.trendingBooks = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], }
-    await book.trendingBooks({ limit: limit || 10, page: page || 0 }).then(([rows], fieldData) => {
+    await book.trendingBooks({ limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
             message: 'Books of the week fetched successfully',
@@ -257,7 +257,7 @@ exports.getEpisodesById = async (req, res, next) => {
 
 
     let data = { data: [], }
-    await book.getEpisodesById({ bookId, limit: limit || 10, page:limit* page || 0 }).then(([rows], fieldData) => {
+    await book.getEpisodesById({ bookId, limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
         res.status(200).send({
             message: 'Books bY id  fetched successfully',
@@ -286,9 +286,9 @@ exports.getBookDetailsById = async (req, res, next) => {
             data: error
         })
     })
-    console.log(req.user,'aaaaaaaaaaa');
-    
-    
+    console.log(req.user, 'aaaaaaaaaaa');
+
+
     const category = await data.data?.length && data.data?.map(e => e.categories)
 
     await book.getCategories({ category }).then(([rows], fieldData) => {
@@ -312,6 +312,28 @@ exports.getBookDetailsById = async (req, res, next) => {
         })
     })
 
+
+
+
+}
+
+exports.newBooks = async (req, res, next) => {
+    const { limit, page } = req.query
+
+    await book.getNewBooks({ limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
+        res.status(200).send({
+            message: 'Books Details fetched successfully',
+            status: 200,
+            data: {
+                data: rows, total: rows?.length ? rows[0]['total'] : 0
+            }
+        })
+    }).catch((error) => {
+        res.status(404).send({
+            message: "Something went wrong dw",
+            data: error
+        })
+    })
 
 
 

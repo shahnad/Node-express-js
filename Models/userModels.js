@@ -129,7 +129,13 @@ module.exports = class userModel {
     }
 
     getTopWriters = ({ limit, page }) => {
-        let query = `SELECT _id AS id, email,COUNT(_id) OVER() as total, username, profile_pic as image, User_type, created_at AS joinedDate ,rating FROM users  ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
+        let query = `SELECT _id AS id,
+         email,COUNT(_id) OVER() as total,
+          username, profile_pic as image,
+          (SELECT COUNT(id) FROM followers WHERE followers.follower_id = _id) AS followers,
+          (SELECT COUNT(*) FROM books where userid = _id) AS books,
+            User_type, created_at AS joinedDate ,
+           rating FROM users ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
         return db.execute(query)
     }
 
@@ -143,5 +149,21 @@ module.exports = class userModel {
         return db.execute(query)
     }
 
+    getWriters = (params) => {
+        const { limit, page } = params
+        const query = `SELECT _id AS id,
+        COUNT(_id) OVER() as total,
+        bio,
+        username, profile_pic as image
+        FROM users
+        WHERE starWriters = 1
+        ORDER BY _id DESC  ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`;
+        return db.execute(query)
+    }
 
+    getUserBooksbyId = (params) => {
+        const { id } = params
+        const query = `SELECT id, title ,userid from books where userid = (${id})`;
+        return db.execute(query)
+    }
 }

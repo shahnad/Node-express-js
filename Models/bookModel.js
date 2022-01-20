@@ -234,10 +234,17 @@ module.exports = class bookModel {
         const { category } = params
         const query = `SELECT categoryName as title , _id as id  FROM bookcategories  WHERE _id IN (${category})`
         return db.execute(query)
-
-
     }
 
+    getNewBooks = (params) => {
+        const { limit,page } = params
+        const query = `SELECT title, imageurl as image ,id , 
+        (SELECT username from users where _id = id) as author,
+        (SELECT AVG(rate) FROM rating where book_id = id) as rating, 
+        COUNT(id) OVER() as total  FROM books where created_at BETWEEN (NOW() - INTERVAL 60 DAY) AND NOW() 
+        ORDER BY id DESC ${limit ? ` LIMIT ${limit} OFFSET ${page}` : ''}`
+        return db.execute(query)
+    }
 
 
 }

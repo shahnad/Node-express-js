@@ -231,7 +231,7 @@ exports.getUserProfile = async (req, res, next) => {
 
 exports.getWriterProfile = async (req, res, next) => {
     let { user_id } = req.query
-console.log(req.session.userData,'ssssssss');
+    console.log(req.session.userData, 'ssssssss');
 
     await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
         let data = {}
@@ -241,7 +241,7 @@ console.log(req.session.userData,'ssssssss');
             data = {
                 ...resultData[0],
                 categories: rows || [],
-                rating: resultData[0]?.rating < 3 ||  resultData[0]?.rating ===null ? 3:resultData[0]?.rating
+                rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
             }
         }).catch((error) => res.status(404).send({ message: error, status: 404, error }))
         res.status(200).send({
@@ -293,8 +293,8 @@ exports.getPremiumWriters = async (req, res, next) => {
     let data = { total: 0 }
     const user_type = 2
 
-    await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
-        data = { ...data, data: writers || [] }
+    await user.WritersByID({ user_type, limit: limit || 10, page: limit * page || 0 }).then(([writers, fieldData]) => {
+        data = { ...data, data: writers || [], total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
             message: 'Premium writers fetched successfully!',
             status: 200,
@@ -329,9 +329,9 @@ exports.getFounderWriters = async (req, res, next) => {
 
 exports.getTopWriters = async (req, res, next) => {
     const { limit, page } = req.query
-    let data = { writers: [], total: 0 }
+    let data = { data: [], total: 0 }
 
-    await user.getTopWriters({ limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
+    await user.getTopWriters({ limit: limit || 10, page: limit * page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, data: writers, total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
             message: 'Founder writers fetched successfully!',
@@ -368,4 +368,39 @@ exports.getBookTypes = async (req, res, next) => {
         res.status(404).send({ data })
     })
 }
-//
+
+
+exports.starWriters = async (req, res, next) => {
+    const { limit, page } = req.query
+
+    let data = {}
+    await user.getWriters({ limit: limit || 10, page: limit * page || 0 })
+        .then(async ([users, fieldData]) => {
+            data = {
+                ...data, data: users,
+                total: users?.length ? users[0]['total'] : 0,
+                statusText: 'Ok', status: 200,
+                message: 'users fetched successfully!',
+            }
+
+            let newArray = []
+            for (let index = 0; index < users.length; index++) {
+                const id = users[index].id;
+                let checkData = await user.getUserBooksbyId({ id }).then(([data, err]) => {
+                    newArray.push({ ...users[index], bookList: data || [] })
+                }).catch((err) => {
+                    res.status(404).send({ data: err })
+                })
+            }
+            res.status(200).send({ ...data, data: newArray })
+        }).catch((error) => {
+            console.error(error)
+            data = { ...data, message: "Something went wrong", status: 404, error }
+            res.status(404).send({ data })
+        })
+
+
+
+
+
+}

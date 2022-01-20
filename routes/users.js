@@ -62,7 +62,6 @@ router.get('/getBookCategories', isAuth, userCtrl.getBookCategories)
 
 router.get('/getBookTypes', isAuth, userCtrl.getBookTypes)
 
-// 
-
+router.get('/starWriters', userCtrl.starWriters);
 
 module.exports = router;
