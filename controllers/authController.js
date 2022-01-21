@@ -1,9 +1,14 @@
 const authModel = require('../Models/authModel');
 const userModel = require('../Models/userModels')
+require('dotenv').config()
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const e = require('express');
-
+const fs = require('fs');
+const { uploadFile,getFileStream } = require('../s3_config')
+const util = require('util')
+const unlinkFile = util.promisify(fs.unlink)
+const base_url = process.env.BASE_URL
 const auth = new authModel()
 const user = new userModel()
 
@@ -39,11 +44,13 @@ exports.login = (req, res, next) => {
 }
 
 // signup
-exports.signUp = (req, res, next) => {
+exports.signUp = async (req, res, next) => {
     const { email, password, username } = req.body
     const imageFile = req.file || {}
     const imagePath = imageFile?.filename ? `/images/${imageFile?.filename}` : ''
-
+    const result = await uploadFile(imageFile)
+    console.log();
+    await unlinkFile(imageFile.path)
     auth.findOne({ email: email }).then(([rows, fieldData]) => {
         if (rows.length) {
             res.status(404).send({
@@ -52,17 +59,17 @@ exports.signUp = (req, res, next) => {
             })
         } else {
             return bcrypt.hash(password, 12).then((hash) => {
-                user.userSignUp({ email, password: hash, profile_pic: imagePath, username }).then(([resAray, fieldResData]) => {
+                user.userSignUp({ email, password: hash, profile_pic: result?.key || '', username }).then(([resAray, fieldResData]) => {
                     const token = jwt.sign({ email }, 'my_secret_key', { expiresIn: '9h' })
                     req.session.isLoggedIn = true
                     req.session.userData = { email, password, username }
-                    res.status(200).send({
+                      res.status(200).send({
                         message: 'User Created Successfully !', data: {
                             id: resAray?.insertId,
                             email,
                             username,
                             password: hash,
-                            profile_pic: imagePath,
+                            profile_pic: `${base_url}/images/${result?.key}`,
                             token
                         }, status: 200
                     })
@@ -117,7 +124,7 @@ exports.booksandwriters = async (req, res, next) => {
 
 
     await auth.searchWriters({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
-        
+
         data = { ...data, writer: { data: result, total: result?.length ? result[0]['total'] : 0 } }
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => {

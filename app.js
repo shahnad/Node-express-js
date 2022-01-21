@@ -23,7 +23,7 @@ connection.connect()
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './images')
+    cb(null, 'uploads/')
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
@@ -88,6 +88,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
 
 app.listen(port, console.log(`port running on ${port}`))
 module.exports = app;
