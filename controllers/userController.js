@@ -241,8 +241,9 @@ exports.getWriterProfile = async (req, res, next) => {
 
         data = {
             ...resultData[0],
-            categories:categories,
-            rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
+            categories: categories,
+            rating: resultData[0]?.rating < 3 ||
+                resultData[0]?.rating === null ? 3 : resultData[0]?.rating
         }
 
         await book.getBooksByCategoryUserId({ user_id }).then(([books, fieldData]) => {
@@ -258,17 +259,17 @@ exports.getWriterProfile = async (req, res, next) => {
             res.status(404).send({ message: error?.message, status: 404, error })
         })
         if (categories?.length) {
-            await book.getCategories({ category: [...new Set(categories)] }).then(([rows, fieldData]) => {
-                data = {
-                    ...resultData[0],
-                    categories: rows || [],
-                    rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
-                }
-
-
-            }).catch((error) => {
-                res.status(404).send({ message: error?.message, status: 404, error })
-            })
+            await book.getCategories({ category: [...new Set(categories)] })
+                .then(([rows, fieldData]) => {
+                    data = {
+                        ...resultData[0],
+                        categories: rows || [],
+                        rating: resultData[0]?.rating < 3 ||
+                            resultData[0]?.rating === null ? 3 : resultData[0]?.rating
+                    }
+                }).catch((error) => {
+                    res.status(404).send({ message: error?.message, status: 404, error })
+                })
         }
 
         res.status(200).send({
@@ -278,7 +279,6 @@ exports.getWriterProfile = async (req, res, next) => {
         })
 
     }).catch((error) => {
-        console.log(error, 'AAAAAAAAAAAAAAAAAAAA');
         res.status(404).send({ message: error?.message, status: 404, error })
     })
 
