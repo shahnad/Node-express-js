@@ -77,10 +77,9 @@ module.exports = class userModel {
         (SELECT AVG(rate) FROM rating WHERE book_id = ${user_id}) AS rating,
         (SELECT COUNT(follower_id) FROM followers WHERE followers.follower_id = ${user_id}) AS followers,
         (SELECT COUNT(id) FROM books WHERE books.userid = ${user_id}) AS books,
-        (SELECT category FROM books WHERE books.id = ${user_id}) as categories,
         created_at as joined
-        FROM users WHERE _id = ?`
-        return db.execute(query, [user_id])
+        FROM users WHERE _id = ${user_id}`
+        return db.execute(query)
 
     }
 
@@ -123,19 +122,21 @@ module.exports = class userModel {
     }
 
     WritersByID = ({ user_type, limit, page }) => {
-        let queries = [user_type]
-        let query = `SELECT _id AS id,COUNT(_id) OVER() as total, email, username, profile_pic as image, User_type, created_at AS joinedDate ,rating FROM users  WHERE User_type = ${user_type}  ${limit ? ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
+        let query = `SELECT _id AS id,COUNT(_id) OVER() as total, email, username, profile_pic as image, User_type,
+        created_at AS joinedDate  FROM users 
+        WHERE User_type = ${user_type}  ${limit ? ` LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''}`
         return db.execute(query)
     }
 
     getTopWriters = ({ limit, page }) => {
         let query = `SELECT _id AS id,
-         email,COUNT(_id) OVER() as total,
-          username, profile_pic as image,
-          (SELECT COUNT(id) FROM followers WHERE followers.follower_id = _id) AS followers,
-          (SELECT COUNT(*) FROM books where userid = _id) AS books,
-            User_type, created_at AS joinedDate ,
-           rating FROM users ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
+        email,COUNT(_id) OVER() as total,
+        username, profile_pic as image,
+        (SELECT COUNT(id) FROM followers WHERE followers.follower_id = _id) AS followers,
+        (SELECT COUNT(*) FROM books where userid = _id) AS books,
+        User_type, created_at AS joinedDate ,
+        (SELECT AVG(rate) FROM writerrating where writer_id = _id)
+        as rating FROM users ORDER BY rating DESC ${limit ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(page)}` : ''} `
         return db.execute(query)
     }
 
@@ -161,7 +162,7 @@ module.exports = class userModel {
         return db.execute(query)
     }
 
-    getUserBooksbyId = (params) => {
+    getUserDataBooksbyId = (params) => {
         const { id } = params
         const query = `SELECT id, title ,userid from books where userid = (${id})`;
         return db.execute(query)

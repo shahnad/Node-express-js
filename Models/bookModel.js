@@ -175,29 +175,35 @@ module.exports = class bookModel {
     getBooksOfWeeks = (params) => {
         const { limit, page } = params
         const query = `SELECT id,title,imageurl as image,title,COUNT(id) OVER()  as total,description,price,
-        (SELECT username from users where _id = userid) as author,(SELECT categoryName 
-        FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,
-        (SELECT AVG(rate) FROM rating where book_id = id) as rating, noOfReaders  FROM books ORDER BY noOfReaders DESC 
+        (SELECT username from users where _id = userid) as author,
+        (SELECT COUNT(_id) FROM episodes where book_id = id) as parts,
+        (SELECT AVG(rate) FROM rating where book_id = id) as rating, 
+        (SELECT COUNT(id) FROM reading WHERE book_id = id) AS noOfReaders   
+        FROM books ORDER BY noOfReaders DESC 
         ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
 
     latestReleases = (params) => {
         const { limit, page } = params
-        const query = `SELECT id,title,imageurl as image,title,COUNT(id) OVER() as total,description,price,(SELECT username from users where _id = userid) as author,
-        (SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,
-        (SELECT COUNT(_id) FROM episodes where book_id = id) as parts,(SELECT AVG(rate) FROM rating where book_id = id) as rating,
-        noOfReaders  FROM books ORDER BY created_at DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        const query = `SELECT id,title,imageurl as image,title,COUNT(id) OVER() as total,
+        description,price,(SELECT username from users where _id = userid) as author,
+        (SELECT COUNT(_id) FROM episodes where book_id = id) as parts,
+        (SELECT AVG(rate) FROM rating where book_id = id) as rating,
+        (SELECT COUNT(id) FROM reading WHERE book_id = id) AS noOfReaders  
+        FROM books ORDER BY created_at DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
 
     }
 
     trendingBooks = (params) => {
         const { limit, page } = params
-        const query = `SELECT id,title,COUNT(id) OVER() as total,imageurl as image,description,price,(SELECT username from users where _id = userid) as author,
-        (SELECT categoryName FROM bookcategories WHERE _id IN (category)) as categories,(SELECT COUNT(_id) FROM episodes where book_id = id) as parts,
+        const query = `SELECT id,title,COUNT(id) OVER() as total,imageurl as image,description,price,
+        (SELECT username from users where _id = userid) as author,
+        (SELECT COUNT(_id) FROM episodes where book_id = id) as parts,
         (SELECT AVG(rate) FROM rating where book_id = id) as rating, 
-        noOfReaders  FROM books ORDER BY rating DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
+        (SELECT COUNT(id) FROM reading WHERE book_id = id) AS noOfReaders 
+        FROM books ORDER BY rating DESC ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
     getEpisodesById = (params) => {
@@ -232,12 +238,12 @@ module.exports = class bookModel {
 
     getCategories = (params) => {
         const { category } = params
-        const query = `SELECT categoryName as title , _id as id  FROM bookcategories  WHERE _id IN (${category})`
+        const query = `SELECT category as title , _id as id  FROM bookcategories  WHERE _id IN (${category})`
         return db.execute(query)
     }
 
     getNewBooks = (params) => {
-        const { limit,page } = params
+        const { limit, page } = params
         const query = `SELECT title, imageurl as image ,id , 
         (SELECT username from users where _id = id) as author,
         (SELECT AVG(rate) FROM rating where book_id = id) as rating, 
@@ -245,6 +251,9 @@ module.exports = class bookModel {
         ORDER BY id DESC ${limit ? ` LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
     }
-
+    getBooksByCategoryUserId = ({ user_id }) => {
+        const query = `SELECT id, title, category FROM books  WHERE userid = ${user_id}`
+        return db.execute(query)
+    }
 
 }

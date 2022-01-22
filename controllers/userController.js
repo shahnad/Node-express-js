@@ -53,10 +53,10 @@ exports.updateUser = (req, res, next) => {
                     res.status(404).send({ message: "User Not Exist", status: 404 })
                 }
             }).catch((error) => {
-                res.status(404).send({ error: error, status: 404 })
+                res.status(404).send({ error: error?.message, status: 404 })
             })
         }).catch((error) => {
-            res.status(500).send({ error: error, status: 500 })
+            res.status(500).send({ error: error?.message, status: 500 })
         })
     }
 }
@@ -103,7 +103,7 @@ exports.followUser = (req, res, next) => {
             followed_id: resultData?.insertId,
         })
     }).catch((error) => {
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        res.status(404).send({ message: error?.message, status: 404, error })
     })
 }
 
@@ -118,7 +118,7 @@ exports.getUserFollowings = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, error }))
 }
 
 
@@ -133,7 +133,7 @@ exports.getUserFollowers = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, error }))
 }
 
 exports.getuserWritings = async (req, res, next) => {
@@ -202,9 +202,9 @@ exports.getUserProfile = async (req, res, next) => {
         let data = {
             ...resultData[0],
         }
-        console.log(resultData,"AAAAAAAAAAAAAAAA");
+        console.log(resultData, "AAAAAAAAAAAAAAAA");
 
-        const bookIds = resultData?.length && resultData?.map(e => e?.id?.toString()).filter(e => e) 
+        const bookIds = resultData?.length && resultData?.map(e => e?.id?.toString()).filter(e => e)
 
         bookIds?.length > 0 && await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
             const resultData = rating?.map((result) => (result?.rate)) || []
@@ -233,28 +233,42 @@ exports.getUserProfile = async (req, res, next) => {
 
 exports.getWriterProfile = async (req, res, next) => {
     let { user_id } = req.query
-    console.log(req.session.userData, 'ssssssss');
 
     await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
         let data = {}
         delete resultData[0]['password']
-        const categoryIds = resultData[0]['categories']
-        await book.getCategories({ category: categoryIds }).then(([rows, fieldData]) => {
+        let categories = []
+        await book.getBooksByCategoryUserId({ user_id }).then(([books, fieldData]) => {
+            books?.length && books?.map((e => {
+                if (e) {
+                    e.category.split(',').map((item) => {
+                        categories.push(item)
+                    })
+                }
+            }))
+
+        }).catch((error) => {
+            res.status(404).send({ message: error?.message, status: 404, error })
+        })
+        await book.getCategories({ category: [...new Set(categories)] }).then(([rows, fieldData]) => {
             data = {
                 ...resultData[0],
                 categories: rows || [],
                 rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
             }
-        }).catch((error) => res.status(404).send({ message: error, status: 404, error }))
-        res.status(200).send({
-            message: 'User profile fetched successfully!',
-            status: 200,
-            data
+
+            res.status(200).send({
+                message: 'User profile fetched successfully!',
+                status: 200,
+                data
+            })
+        }).catch((error) => {
+            res.status(404).send({ message: error?.message, status: 404, error })
         })
 
     }).catch((error) => {
-        console.log(error);
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        console.log(error, 'AAAAAAAAAAAAAAAAAAAA');
+        res.status(404).send({ message: error?.message, status: 404, error })
     })
 
 }
@@ -270,7 +284,7 @@ exports.visitProfile = async (req, res, next) => {
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        res.status(404).send({ message: error?.message, status: 404, error })
     })
 }
 
@@ -286,7 +300,7 @@ exports.getUserByIds = async (req, res, next) => {
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: "User Not Exist", status: 404, error, data })
+        res.status(404).send({ message: error?.message, status: 404, error, data })
     })
 }
 
@@ -305,7 +319,7 @@ exports.getPremiumWriters = async (req, res, next) => {
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: error, status: 404 })
+        res.status(404).send({ message: error?.message, status: 404 })
     })
 
 }
@@ -324,7 +338,7 @@ exports.getFounderWriters = async (req, res, next) => {
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        res.status(404).send({ message: error?.message, status: 404, error })
     })
 
 }
@@ -342,7 +356,7 @@ exports.getTopWriters = async (req, res, next) => {
         })
     }).catch((error) => {
         console.log(error)
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        res.status(404).send({ message: error?.message, status: 404, error })
     })
 
 }
@@ -354,7 +368,7 @@ exports.getBookCategories = async (req, res, next) => {
         res.status(200).send({ data })
     }).catch((error) => {
         console.error(error)
-        data = { ...data, message: "Something went wrong", status: 404, error }
+        data = { ...data, message: error?.message, status: 404, error }
         res.status(404).send({ data })
     })
 }
@@ -366,7 +380,7 @@ exports.getBookTypes = async (req, res, next) => {
         res.status(200).send({ data })
     }).catch((error) => {
         console.error(error)
-        data = { ...data, message: "Something went wrong", status: 404, error }
+        data = { ...data, message: error?.message, status: 404, error }
         res.status(404).send({ data })
     })
 }
@@ -388,17 +402,17 @@ exports.starWriters = async (req, res, next) => {
             let newArray = []
             for (let index = 0; index < users.length; index++) {
                 const id = users[index].id;
-                let checkData = await user.getUserBooksbyId({ id }).then(([data, err]) => {
+                let checkData = await user.getUserDataBooksbyId({ id }).then(([data, err]) => {
                     newArray.push({ ...users[index], bookList: data || [] })
-                }).catch((err) => {
-                    console.log(error,"wwwwwwwwwwww")
-                    res.status(404).send({ data: err })
+                }).catch((error) => {
+                    console.log(error, "wwwwwwwwwwww")
+                    res.status(404).send({ message: error?.message, })
                 })
             }
             res.status(200).send({ ...data, data: newArray })
         }).catch((error) => {
-            console.log(error,"iiiiiiiiiiiiio")
-            data = { ...data, message: "Something went wrong", status: 404, error }
+            console.log(error, "iiiiiiiiiiiiio")
+            data = { ...data, message: error?.message, status: 404, error }
             res.status(404).send({ data })
         })
 
@@ -419,8 +433,8 @@ exports.getUserBooksById = async (req, res, next) => {
         }
         res.status(200).send({ data })
     }).catch((error) => {
-        console.error(error)
-        data = { ...data, message: "Something went wrong", status: 404, error }
+        console.error(error, "ooooooooooooooooooooooooooooooo")
+        data = { ...data, message: error?.message, status: 404, error }
         res.status(404).send({ data })
     })
 }

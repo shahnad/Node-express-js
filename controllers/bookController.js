@@ -1,5 +1,6 @@
 
 const e = require("express");
+const { log } = require("npmlog");
 const bookModel = require("../Models/bookModel");
 const book = new bookModel()
 
@@ -18,8 +19,7 @@ exports.createBook = (req, res, next) => {
     }).catch((error) => {
         console.log(error);
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 }
@@ -41,8 +41,7 @@ exports.addEpisode = (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 }
@@ -58,8 +57,7 @@ exports.rateEpisode = (req, res, next) => {
 
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
 
     })
@@ -85,8 +83,7 @@ exports.getEpisodeByBook = async (req, res, next) => {
     }).catch((error) => {
         console.log(error);
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -102,8 +99,7 @@ exports.getBooksById = (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -129,8 +125,7 @@ exports.readBook = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -148,8 +143,7 @@ exports.addToFavorite = async (req, res, next) => {
 
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -166,8 +160,7 @@ exports.addToLibrary = async (req, res, next) => {
 
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -185,8 +178,7 @@ exports.getBooksByIds = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -195,7 +187,6 @@ exports.getBooksByIds = async (req, res, next) => {
 exports.getBooksOftheWeeks = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], total: 0 }
-
 
     await book.getBooksOfWeeks({ limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
 
@@ -207,8 +198,7 @@ exports.getBooksOftheWeeks = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message
         })
     })
 }
@@ -216,10 +206,14 @@ exports.getBooksOftheWeeks = async (req, res, next) => {
 exports.latestReleases = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], total: 0 }
-
-
     await book.latestReleases({ limit: limit || 10, page: limit * page || 0 }).then(([rows], fieldData) => {
         data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+
+        console.log('--------------------------',rows,'------------------------------------------')
+
+
+
+
         res.status(200).send({
             message: 'Books of the week fetched successfully',
             status: 200,
@@ -227,8 +221,7 @@ exports.latestReleases = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            msage: error?.message
         })
     })
 }
@@ -246,8 +239,7 @@ exports.trendingBooks = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 }
@@ -266,8 +258,7 @@ exports.getEpisodesById = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
 }
@@ -282,8 +273,7 @@ exports.getBookDetailsById = async (req, res, next) => {
         data = { ...data, data: rows }
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong",
-            data: error
+            message: error?.message,
         })
     })
     console.log(req.user, 'aaaaaaaaaaa');
@@ -307,8 +297,7 @@ exports.getBookDetailsById = async (req, res, next) => {
 
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong dw",
-            data: error
+            message: error?.message,
         })
     })
 
@@ -330,8 +319,7 @@ exports.newBooks = async (req, res, next) => {
         })
     }).catch((error) => {
         res.status(404).send({
-            message: "Something went wrong dw",
-            data: error
+            message: error?.message,
         })
     })
 

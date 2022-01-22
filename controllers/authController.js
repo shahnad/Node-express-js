@@ -32,13 +32,13 @@ exports.login = (req, res, next) => {
                     }
                 }).catch((error) => {
                     console.log(JSON.stringify(error));
-                    res.status(404).send({ message: error, status: 404 })
+                    res.status(404).send({ message: error?.message, status: 404 })
                 })
         } else {
             res.status(404).send({ error: "You're trying with a wrong credentials.Please Try again", status: 404 })
         }
     }).catch((error) =>
-        res.status(500).send({ message: error, status: 500 })
+        res.status(500).send({ message:  error?.message,  status: 500 })
     )
 
 }
@@ -79,7 +79,7 @@ exports.signUp = async (req, res, next) => {
                 })
             }).catch((error) => {
                 console.log(JSON.stringify(error));
-                res.status(404).send({ message: error, status: 404 })
+                res.status(404).send({ message: error?.message, status: 404 })
             })
         }
     }).catch((error) => {
@@ -109,7 +109,7 @@ exports.getSliderImages = (req, res, next) => {
         data = { ...data, images: images }
         res.status(200).send({ message: 'OK', status: 200, data })
     }).catch((error) => {
-        res.status(404).send({ message: error, status: 500 })
+        res.status(404).send({ message: error?.message, status: 500 })
     })
 }
 
@@ -130,7 +130,7 @@ exports.booksandwriters = async (req, res, next) => {
     }).catch((error) => {
 
         res.status(404).send({
-            message: error,
+            message: error?.message,
 
         })
     })
