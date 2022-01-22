@@ -238,6 +238,13 @@ exports.getWriterProfile = async (req, res, next) => {
         let data = {}
         delete resultData[0]['password']
         let categories = []
+
+        data = {
+            ...resultData[0],
+            categories:categories,
+            rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
+        }
+
         await book.getBooksByCategoryUserId({ user_id }).then(([books, fieldData]) => {
             books?.length && books?.map((e => {
                 if (e) {
@@ -250,20 +257,24 @@ exports.getWriterProfile = async (req, res, next) => {
         }).catch((error) => {
             res.status(404).send({ message: error?.message, status: 404, error })
         })
-        await book.getCategories({ category: [...new Set(categories)] }).then(([rows, fieldData]) => {
-            data = {
-                ...resultData[0],
-                categories: rows || [],
-                rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
-            }
+        if (categories?.length) {
+            await book.getCategories({ category: [...new Set(categories)] }).then(([rows, fieldData]) => {
+                data = {
+                    ...resultData[0],
+                    categories: rows || [],
+                    rating: resultData[0]?.rating < 3 || resultData[0]?.rating === null ? 3 : resultData[0]?.rating
+                }
 
-            res.status(200).send({
-                message: 'User profile fetched successfully!',
-                status: 200,
-                data
+
+            }).catch((error) => {
+                res.status(404).send({ message: error?.message, status: 404, error })
             })
-        }).catch((error) => {
-            res.status(404).send({ message: error?.message, status: 404, error })
+        }
+
+        res.status(200).send({
+            message: 'User profile fetched successfully!',
+            status: 200,
+            data
         })
 
     }).catch((error) => {
