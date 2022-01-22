@@ -25,7 +25,7 @@ exports.getUsers = async (req, res, next) => {
 
     await user.getUsers({ page: page || 0, limit: limit || 10 }).then(([rows]) => {
         data = { ...data, users: rows }
-        res.status(200).send({ data: data, status: 200, message: 'Users Listed Sucessfully' })
+        res.status(200).send({ data: data, status: 200,  message: 'OK', })
     }).catch((error) => {
         res.status(500).send({ error: error, status: 500 })
     })
@@ -78,7 +78,8 @@ exports.deleteUser = (req, res, next) => {
                         }
                     })
                     res.status(200).send({
-                        data: result, message: 'User Deleted Successfully!',
+                        data: result,
+                         message: 'User Deleted Successfully!',
                         status: 200
                     })
                 }).catch((error) => {
@@ -98,7 +99,7 @@ exports.followUser = (req, res, next) => {
     const { follower_id, followed_id } = req.body
     user.followUser({ follower_id, followed_id }).then(([resultData, fieldData]) => {
         res.status(200).send({
-            message: 'You followed him successfully!',
+            message: 'OK',
             status: 200,
             followed_id: resultData?.insertId,
         })
@@ -114,7 +115,7 @@ exports.getUserFollowings = async (req, res, next) => {
     await user.getUserFollowedIds({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([followedData, fieldData]) => {
         data = { ...data, data: followedData || [], total: followedData?.length ? followedData[0]['total'] : 0 }
         res.status(200).send({
-            message: 'User Followings fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -129,7 +130,7 @@ exports.getUserFollowers = async (req, res, next) => {
     await user.getUserFollowers({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([followers, fieldData]) => {
         data = { ...data, data: followers || [], total: followers?.length ? followers[0]['total'] : 0 }
         res.status(200).send({
-            message: 'User followers fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -144,7 +145,7 @@ exports.getuserWritings = async (req, res, next) => {
     await book.getUserWrirings({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([books, fieldData]) => {
         data = { ...data, data: books || [], total: books?.length ? books[0]['total'] : 0 }
         res.status(200).send({
-            message: 'User writings fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -158,7 +159,7 @@ exports.getUserDrafts = async (req, res, next) => {
     await book.getUserDrafts({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([drafts, fieldData]) => {
         data = { ...data, data: drafts || [], total: drafts?.length ? drafts[0]['total'] : 0 }
         res.status(200).send({
-            message: 'Drafts fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -172,7 +173,7 @@ exports.getuserFavoriteBooks = async (req, res, next) => {
     await book.FavoriteBooks({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([favoriteBooks, fieldData]) => {
         data = { ...data, data: favoriteBooks || [], total: favoriteBooks?.length ? favoriteBooks[0]['total'] : 0 }
         res.status(200).send({
-            message: 'favorite books fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -185,7 +186,7 @@ exports.getuserLibrary = async (req, res, next) => {
     await book.getuserLibrary({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([library, fieldData]) => {
         data = { ...data, data: library || [], total: library?.length ? library[0]['total'] : 0 }
         res.status(200).send({
-            message: 'library books fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -202,8 +203,7 @@ exports.getUserProfile = async (req, res, next) => {
         let data = {
             ...resultData[0],
         }
-        console.log(resultData, "AAAAAAAAAAAAAAAA");
-
+       
         const bookIds = resultData?.length && resultData?.map(e => e?.id?.toString()).filter(e => e)
 
         bookIds?.length > 0 && await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
@@ -219,7 +219,7 @@ exports.getUserProfile = async (req, res, next) => {
         }).catch((error) => console.log(error))
 
         res.status(200).send({
-            message: 'User profile fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -273,7 +273,7 @@ exports.getWriterProfile = async (req, res, next) => {
         }
 
         res.status(200).send({
-            message: 'User profile fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -289,7 +289,7 @@ exports.visitProfile = async (req, res, next) => {
     const { user_id, visitors_id } = req.body
     user.userVistiProfile({ user_id, visitors_id }).then(([followersData, fieldData]) => {
         res.status(200).send({
-            message: 'User profile visited successfully!',
+            message: 'OK',
             status: 200,
 
         })
@@ -305,7 +305,7 @@ exports.getUserByIds = async (req, res, next) => {
     user.getUsersByIds({ userIds }).then(([users, fieldData]) => {
         data = { ...data, users }
         res.status(200).send({
-            message: 'Users fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -323,7 +323,7 @@ exports.getPremiumWriters = async (req, res, next) => {
     await user.WritersByID({ user_type, limit: limit || 10, page: limit * page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, data: writers || [], total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
-            message: 'Premium writers fetched successfully!',
+            message: 'OK',
             status: 200,
             statusText: 'OK',
             data
@@ -343,7 +343,7 @@ exports.getFounderWriters = async (req, res, next) => {
     await user.WritersByID({ user_type, limit: limit || 10, page: page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, data: writers || [], total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
-            message: 'Founder writers fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
@@ -361,7 +361,7 @@ exports.getTopWriters = async (req, res, next) => {
     await user.getTopWriters({ limit: limit || 10, page: limit * page || 0 }).then(([writers, fieldData]) => {
         data = { ...data, data: writers, total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
-            message: 'Founder writers fetched successfully!',
+            message: 'OK',
             status: 200,
             data
         })
