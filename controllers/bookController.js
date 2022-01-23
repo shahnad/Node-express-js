@@ -220,7 +220,14 @@ exports.getBooksOftheWeeks = async (req, res, next) => {
 
     await book.getBooksOfWeeks({ limit: limit || 10, page: limit * page || 0 })
         .then(([rows], fieldData) => {
-            data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+            let newArray = [...rows]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+                }
+            })
+            data = { ...data, data: newArray, total: rows?.length ? rows[0]['total'] : 0 }
             res.status(200).send({
                 message: 'OK',
                 status: 200,
@@ -238,7 +245,14 @@ exports.latestReleases = async (req, res, next) => {
     let data = { data: [], total: 0 }
     await book.latestReleases({ limit: limit || 10, page: limit * page || 0 })
         .then(([rows], fieldData) => {
-            data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+            let newArray = [...rows]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+                }
+            })
+            data = { ...data, data: newArray, total: rows?.length ? rows[0]['total'] : 0 }
             res.status(200).send({
                 message: 'OK',
                 status: 200,
@@ -257,7 +271,15 @@ exports.trendingBooks = async (req, res, next) => {
     let data = { data: [], }
     await book.trendingBooks({ limit: limit || 10, page: limit * page || 0 })
         .then(([rows], fieldData) => {
-            data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+            let newArray = [...rows]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+                }
+            })
+
+            data = { ...data, data: newArray, total: rows?.length ? rows[0]['total'] : 0 }
             res.status(200).send({
                 message: 'OK',
                 status: 200,

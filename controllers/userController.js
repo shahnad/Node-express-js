@@ -356,25 +356,26 @@ exports.getTopWriters = async (req, res, next) => {
     const { limit, page } = req.query
     let data = { data: [], total: 0 }
 
-    await user.getTopWriters({ limit: limit || 10, page: limit * page || 0 }).then(([writers, fieldData]) => {
-        let newArray = [...writers]
-        newArray = newArray?.length && newArray?.map((e) => {
-            ({
-                ...e,
-                rating: e?.rating < 3 || e.rating === null ? 3 : e?.rating,
+    await user.getTopWriters({ limit: limit || 10, page: limit * page || 0 })
+        .then(([writers, fieldData]) => {
+            let newArray = [...writers]
+            newArray = newArray?.length && newArray?.map((e) => {
+                return {
+                    ...e,
+                    rating: e?.rating < 3 || e.rating === null ? 3 : e?.rating,
+                }
             })
-        })
 
-        data = { ...data, data: newArray, total: writers?.length ? writers[0]['total'] : 0 }
-        res.status(200).send({
-            message: 'OK',
-            status: 200,
-            data
+            data = { ...data, data: newArray, total: writers?.length ? writers[0]['total'] : 0 }
+            res.status(200).send({
+                message: 'OK',
+                status: 200,
+                data
+            })
+        }).catch((error) => {
+            console.log(error)
+            res.status(404).send({ message: error?.message, status: 404, error })
         })
-    }).catch((error) => {
-        console.log(error)
-        res.status(404).send({ message: error?.message, status: 404, error })
-    })
 
 }
 
