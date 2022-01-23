@@ -1,16 +1,19 @@
-const authModel = require('../Models/authModel');
-const userModel = require('../Models/userModels')
+
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const e = require('express');
 const fs = require('fs');
-const { uploadFile,getFileStream } = require('../s3_config')
+const { uploadFile, getFileStream } = require('../s3_config')
 const util = require('util')
 const unlinkFile = util.promisify(fs.unlink)
+const authModel = require('../Models/authModel');
+const userModel = require('../Models/userModels')
 const base_url = process.env.BASE_URL
 const auth = new authModel()
 const user = new userModel()
+
+
 
 // login post
 exports.login = (req, res, next) => {
@@ -38,7 +41,7 @@ exports.login = (req, res, next) => {
             res.status(404).send({ error: "You're trying with a wrong credentials.Please Try again", status: 404 })
         }
     }).catch((error) =>
-        res.status(500).send({ message:  error?.message,  status: 500 })
+        res.status(500).send({ message: error?.message, status: 500 })
     )
 
 }
@@ -48,43 +51,62 @@ exports.signUp = async (req, res, next) => {
     const { email, password, username } = req.body
     const imageFile = req.file || {}
     const imagePath = imageFile?.filename ? `/images/${imageFile?.filename}` : ''
-    const result = await uploadFile(imageFile)
-    console.log();
-    await unlinkFile(imageFile.path)
-    auth.findOne({ email: email }).then(([rows, fieldData]) => {
-        if (rows.length) {
-            res.status(404).send({
-                data: [],
-                message: "Email is already exist. Please Try with another email"
-            })
-        } else {
-            return bcrypt.hash(password, 12).then((hash) => {
-                user.userSignUp({ email, password: hash, profile_pic: result?.key || '', username }).then(([resAray, fieldResData]) => {
-                    const token = jwt.sign({ email }, 'my_secret_key', { expiresIn: '9h' })
-                    req.session.isLoggedIn = true
-                    req.session.userData = { email, password, username }
-                      res.status(200).send({
-                        message: 'User Created Successfully !', data: {
-                            id: resAray?.insertId,
-                            email,
-                            username,
-                            password: hash,
-                            profile_pic: `${base_url}/images/${result?.key}`,
-                            token
-                        }, status: 200
-                    })
-                }).catch((error) => {
-                    console.log(JSON.stringify(error));
-                    res.status(500).send({ message: error, status: 500 })
+    let result = {}
+
+    if (imagePath) {
+        result = imagePath && await uploadFile(imageFile)
+        await unlinkFile(imageFile.path)
+    }
+
+    auth.findOne({ email: email })
+        .then(([rows, fieldData]) => {
+            if (rows.length) {
+                res.status(404).send({
+                    data: [],
+                    message: "Email is already exist. Please Try with another email"
                 })
-            }).catch((error) => {
-                console.log(JSON.stringify(error));
-                res.status(404).send({ message: error?.message, status: 404 })
+            } else {
+                return bcrypt.hash(password, 12)
+                    .then((hash) => {
+                        user.userSignUp({
+                            email,
+                            password: hash,
+                            profile_pic: result?.key || '',
+                            username
+                        })
+                            .then(([resAray, fieldResData]) => {
+                                const token = jwt.sign({ email }, 'my_secret_key', { expiresIn: '9h' })
+                                req.session.isLoggedIn = true
+                                req.session.userData = { email, password, username }
+                                res.status(200).send({
+                                    message: 'user created successfully !', data: {
+                                        id: resAray?.insertId,
+                                        email,
+                                        username,
+                                        password: hash,
+                                        profile_pic: result?.key ? `${base_url}/images/${result?.key}` : '',
+                                        token
+                                    }, status: 200
+                                })
+                            }).catch((error) => {
+                                res.status(404).send({
+                                    message: error.message,
+                                    status: 404
+                                })
+                            })
+                    }).catch((error) => {
+                        res.status(404).send({
+                            message: error?.message,
+                            status: 404
+                        })
+                    })
+            }
+        }).catch((error) => {
+            res.status(404).send({
+                message: error?.message,
+                status: 500
             })
-        }
-    }).catch((error) => {
-        res.status(500).send({ message: error, status: 500 })
-    })
+        })
 }
 
 exports.logout = (req, res, next) => {

@@ -5,7 +5,7 @@ const bookModel = require('../Models/bookModel');
 const crypto = require('../crypto/index');
 const { log } = require('console');
 const user = new userModel()
-
+const moment = require('moment');
 const book = new bookModel()
 
 // GET USER
@@ -25,7 +25,7 @@ exports.getUsers = async (req, res, next) => {
 
     await user.getUsers({ page: page || 0, limit: limit || 10 }).then(([rows]) => {
         data = { ...data, users: rows }
-        res.status(200).send({ data: data, status: 200,  message: 'OK', })
+        res.status(200).send({ data: data, status: 200, message: 'OK', })
     }).catch((error) => {
         res.status(500).send({ error: error, status: 500 })
     })
@@ -79,7 +79,7 @@ exports.deleteUser = (req, res, next) => {
                     })
                     res.status(200).send({
                         data: result,
-                         message: 'User Deleted Successfully!',
+                        message: 'User Deleted Successfully!',
                         status: 200
                     })
                 }).catch((error) => {
@@ -196,28 +196,16 @@ exports.getuserLibrary = async (req, res, next) => {
 
 exports.getUserProfile = async (req, res, next) => {
     let { user_id } = req.query
-
+    let data = {}
 
     await user.getUserData({ user_id }).then(async ([resultData, fieldData]) => {
-        delete resultData[0]['password']
-        let data = {
-            ...resultData[0],
-        }
-       
-        const bookIds = resultData?.length && resultData?.map(e => e?.id?.toString()).filter(e => e)
-
-        bookIds?.length > 0 && await user.getUserRatings({ bookIds }).then(([rating, fieldData]) => {
-            const resultData = rating?.map((result) => (result?.rate)) || []
-            const sum = resultData.reduce((a, b) => a + b, 0) || 0
-            data = { ...data, rating: Math.floor(sum / resultData?.length) || 0 }
-        }).catch((error) => console.log(error))
-
-        await user.profileVisited({ user_id }).then(([profile, fieldData]) => {
-            if (profile?.length) {
-                data = { ...data, visitedCount: profile[0]['COUNT(id)'] }
+        if (resultData?.length) {
+            delete resultData[0]['password']
+            data = {
+                ...resultData[0],
+                joined: moment(resultData[0]['joined']).format("L")
             }
-        }).catch((error) => console.log(error))
-
+        }
         res.status(200).send({
             message: 'OK',
             status: 200,

@@ -11,7 +11,6 @@ module.exports = class userModel {
     // signup user
     userSignUp(data) {
         const { email, password, profile_pic, username } = data
-        console.log(data, 'yyyyyyyyyyyyyyyy');
         const query = `INSERT INTO users (email, password,profile_pic, username, created_at, updated_at) VALUES (?,?,?,?,?,?)`
         return db.execute(query, [email, password, profile_pic, username, new Date(), new Date()])
     }
@@ -77,8 +76,10 @@ module.exports = class userModel {
         (SELECT AVG(rate) FROM rating WHERE book_id = ${user_id}) AS rating,
         (SELECT COUNT(follower_id) FROM followers WHERE followers.follower_id = ${user_id}) AS followers,
         (SELECT COUNT(id) FROM books WHERE books.userid = ${user_id}) AS books,
-        created_at as joined
-        FROM users WHERE _id = ${user_id}`
+        (SELECT COUNT(id) FROM followers WHERE followers.followed_id = ${user_id}) AS following,
+        (SELECT COUNT(id) FROM books WHERE books.userid = ${user_id} AND books.status = 1) AS featuredBooks,
+        (SELECT COUNT(id) FROM profilevisitors WHERE profilevisitors.user_id = ${user_id}) AS visitedCount,
+        created_at as joined FROM users WHERE _id = ${user_id}`
         return db.execute(query)
 
     }
