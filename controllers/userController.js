@@ -7,6 +7,7 @@ const { log } = require('console');
 const user = new userModel()
 const moment = require('moment');
 const book = new bookModel()
+require('dotenv').config()
 
 // GET USER
 exports.getUsers = async (req, res, next) => {
@@ -134,7 +135,7 @@ exports.getUserFollowers = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, error }))
+    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, }))
 }
 
 exports.getuserWritings = async (req, res, next) => {
@@ -142,14 +143,23 @@ exports.getuserWritings = async (req, res, next) => {
     let data = {}
 
 
-    await book.getUserWrirings({ user_id, limit: limit || 10, page: limit * page || 0 }).then(([books, fieldData]) => {
-        data = { ...data, data: books || [], total: books?.length ? books[0]['total'] : 0 }
-        res.status(200).send({
-            message: 'OK',
-            status: 200,
-            data
-        })
-    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+    await book.getUserWrirings({ user_id, limit: limit || 10, page: limit * page || 0 })
+        .then(([books, fieldData]) => {
+            let newArray = [...books]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+                    created: moment(book?.created).format('L'),
+                }
+            })
+            data = { ...data, data: newArray || [], total: books?.length ? books[0]['total'] : 0 }
+            res.status(200).send({
+                message: 'OK',
+                status: 200,
+                data
+            })
+        }).catch((error) => res.status(404).send({ message: error?.message, status: 404, }))
 }
 
 exports.getUserDrafts = async (req, res, next) => {
@@ -163,7 +173,7 @@ exports.getUserDrafts = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, error }))
 }
 
 exports.getuserFavoriteBooks = async (req, res, next) => {
@@ -177,7 +187,7 @@ exports.getuserFavoriteBooks = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: "User Not Exist", status: 404, error }))
+    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, error }))
 }
 
 exports.getuserLibrary = async (req, res, next) => {
@@ -190,7 +200,7 @@ exports.getuserLibrary = async (req, res, next) => {
             status: 200,
             data
         })
-    }).catch((error) => res.status(404).send({ message: error, status: 404, }))
+    }).catch((error) => res.status(404).send({ message: error?.message, status: 404, }))
 }
 
 
@@ -214,7 +224,7 @@ exports.getUserProfile = async (req, res, next) => {
 
     }).catch((error) => {
         console.log(error);
-        res.status(404).send({ message: "User Not Exist", status: 404, error })
+        res.status(404).send({ message: error?.message, status: 404, error })
     })
 
 }
@@ -347,7 +357,15 @@ exports.getTopWriters = async (req, res, next) => {
     let data = { data: [], total: 0 }
 
     await user.getTopWriters({ limit: limit || 10, page: limit * page || 0 }).then(([writers, fieldData]) => {
-        data = { ...data, data: writers, total: writers?.length ? writers[0]['total'] : 0 }
+        let newArray = [...writers]
+        newArray = newArray?.length && newArray?.map((e) => {
+            ({
+                ...e,
+                rating: e?.rating < 3 || e.rating === null ? 3 : e?.rating,
+            })
+        })
+
+        data = { ...data, data: newArray, total: writers?.length ? writers[0]['total'] : 0 }
         res.status(200).send({
             message: 'OK',
             status: 200,

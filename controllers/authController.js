@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const e = require('express');
 const fs = require('fs');
-const { uploadFile, getFileStream } = require('../s3_config')
+const { uploadFile } = require('../s3_config')
 const util = require('util')
 const unlinkFile = util.promisify(fs.unlink)
 const authModel = require('../Models/authModel');
@@ -50,12 +50,14 @@ exports.login = (req, res, next) => {
 exports.signUp = async (req, res, next) => {
     const { email, password, username } = req.body
     const imageFile = req.file || {}
-    const imagePath = imageFile?.filename ? `/images/${imageFile?.filename}` : ''
+   
     let result = {}
+    let imagePath = "";
 
-    if (imagePath) {
-        result = imagePath && await uploadFile(imageFile)
+    if (imageFile?.filename) {
+        result = await uploadFile(imageFile)
         await unlinkFile(imageFile.path)
+        imagePath = `${base_url}/images/${result?.key}`
     }
 
     auth.findOne({ email: email })
@@ -71,7 +73,7 @@ exports.signUp = async (req, res, next) => {
                         user.userSignUp({
                             email,
                             password: hash,
-                            profile_pic: result?.key || '',
+                            profile_pic:imagePath,
                             username
                         })
                             .then(([resAray, fieldResData]) => {
@@ -84,12 +86,12 @@ exports.signUp = async (req, res, next) => {
                                         email,
                                         username,
                                         password: hash,
-                                        profile_pic: result?.key ? `${base_url}/images/${result?.key}` : '',
+                                        profile_pic: imagePath,
                                         token
                                     }, status: 200
                                 })
                             }).catch((error) => {
-                                res.status(404).send({
+                               res.status(404).send({
                                     message: error.message,
                                     status: 404
                                 })
@@ -102,6 +104,7 @@ exports.signUp = async (req, res, next) => {
                     })
             }
         }).catch((error) => {
+            console.log(error);
             res.status(404).send({
                 message: error?.message,
                 status: 500

@@ -7,9 +7,9 @@ module.exports = class bookModel {
     }
 
     createNewBook(params) {
-        const { title, imageurl, category, type, userid, status } = params
-        const query = `INSERT INTO books (title, imageurl,category,userid, type, status, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)`
-        return db.execute(query, [title, imageurl, category.join(), type, userid, status, new Date(), new Date()])
+        const { title, imageurl, category, type, userid } = params
+        const query = `INSERT INTO books (title, imageurl,category,userid, type,  created_at, updated_at) VALUES (?,?,?,?,?,?,?)`
+        return db.execute(query, [title, imageurl, category, type, userid, new Date(), new Date()])
     }
 
     addNewEpisode(params) {
@@ -151,7 +151,7 @@ module.exports = class bookModel {
         (SELECT AVG(rate) FROM rating WHERE rating.id = id) as rating,
         (SELECT COUNT(id) FROM reading WHERE reading.book_id = id) as views,
         (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,
-        created_at as created  FROM books  WHERE userid =${user_id} AND Status = 1 ORDER BY id DESC 
+        created_at as created  FROM books  WHERE userid =${user_id}  ORDER BY id DESC 
         ${limit ? `LIMIT ${limit} OFFSET ${page}` : ''}`
         return db.execute(query)
 
@@ -225,8 +225,9 @@ module.exports = class bookModel {
     getBookDetailsById = (params) => {
         const { id } = params
         const query = `SELECT id , title , imageurl as image , category as categories, description, 
-        (SELECT username from users where _id = id) as author, created_at as created ,
-        (SELECT profile_pic from users where _id = id) as authorImage,
+        (SELECT username from users where _id = userid) as author, created_at as created ,
+        (SELECT _id from users where _id = userid) as authorId, 
+        (SELECT profile_pic from users where _id = userid) as authorImage,
         price,  (SELECT COUNT(id) FROM reading WHERE reading.book_id = id) as views,
         (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,
         (SELECT COUNT(_id) FROM episodes WHERE episodes.book_id = id) AS parts,

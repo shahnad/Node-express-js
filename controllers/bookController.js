@@ -1,20 +1,41 @@
 
 const e = require("express");
-const { log } = require("npmlog");
 const bookModel = require("../Models/bookModel");
 const book = new bookModel()
+const { uploadFile } = require('../s3_config')
+const fs = require('fs');
+require('dotenv').config()
+const util = require('util');
+const moment = require('moment')
+const unlinkFile = util.promisify(fs.unlink)
+const base_url = process.env.BASE_URL
 
-exports.createBook = (req, res, next) => {
-    const { title, imageurl, category, type, userid, status } = req.body
+exports.createBook = async (req, res, next) => {
+    const { title, category, type, userid } = req.body
+    const imageFile = req.file || {}
 
-    book.createNewBook({ title, imageurl, category, type, userid, status })
+    let result = {}
+    let imagePath = "";
+
+    if (imageFile?.filename) {
+        result = await uploadFile(imageFile)
+        await unlinkFile(imageFile.path)
+        imagePath = `${base_url}/images/${result?.key}`
+    }
+    console.log(title, imagePath, category, type, userid);
+
+    await book.createNewBook({ title, imageurl: imagePath, category, type, userid })
         .then(([rows], fieldData) => {
             res.status(200).send({
                 message: 'OK',
                 data: {
                     bookId: rows?.insertId,
-                    title, imageurl, category, type,
-                    userid
+                    title,
+                    image: result?.key,
+                    category,
+                    type,
+                    userid,
+                    partNumber: 1,
                 }
             })
         }).catch((error) => {
@@ -25,13 +46,15 @@ exports.createBook = (req, res, next) => {
         })
 }
 
-exports.addEpisode = (req, res, next) => {
+exports.addEpisode = async (req, res, next) => {
+
     const { episode_no, book_id, content } = req.body
     const time = Math.floor(content?.length / 0.1)
     const duration = time / 60 / 60
 
-    book.addNewEpisode({ episode_no, book_id, content, duration })
+    await book.addNewEpisode({ episode_no, book_id, content, duration })
         .then(([rows], fieldData) => {
+
             res.status(200).send({
                 message: 'OK',
                 data: {
@@ -42,6 +65,7 @@ exports.addEpisode = (req, res, next) => {
                 }
             })
         }).catch((error) => {
+            console.log(error);
             res.status(404).send({
                 message: error?.message,
             })
@@ -253,7 +277,15 @@ exports.getEpisodesById = async (req, res, next) => {
     let data = { data: [], }
     await book.getEpisodesById({ bookId, limit: limit || 10, page: limit * page || 0 })
         .then(([rows], fieldData) => {
-            data = { ...data, data: rows, total: rows?.length ? rows[0]['total'] : 0 }
+            let newArray = [...rows]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+                    published: moment(book?.created).format('L'),
+                }
+            })
+            data = { ...data, data: newArray, total: rows?.length ? rows[0]['total'] : 0 }
             res.status(200).send({
                 message: 'OK',
                 status: 200,
@@ -272,7 +304,16 @@ exports.getBookDetailsById = async (req, res, next) => {
 
     await book.getBookDetailsById({ id })
         .then(([rows], fieldData) => {
-            data = { ...data, data: rows }
+
+            let newArray = [...rows]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+                    created: moment(book?.created).format('L'),
+                }
+            })
+            data = { ...data, data: newArray }
         }).catch((error) => {
             res.status(404).send({
                 message: error?.message,
@@ -311,11 +352,21 @@ exports.newBooks = async (req, res, next) => {
 
     await book.getNewBooks({ limit: limit || 10, page: limit * page || 0 })
         .then(([rows], fieldData) => {
+
+            let newArray = [...rows]
+            newArray = newArray?.length && newArray.map((book) => {
+                return {
+                    ...book,
+                    rating: book?.rating < 3 || book.rating === null ? 3 : book?.rating,
+
+                }
+            })
+
             res.status(200).send({
                 message: 'OK',
                 status: 200,
                 data: {
-                    data: rows, total: rows?.length ? rows[0]['total'] : 0
+                    data: newArray, total: rows?.length ? rows[0]['total'] : 0
                 }
             })
         }).catch((error) => {
