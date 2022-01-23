@@ -359,12 +359,11 @@ exports.getTopWriters = async (req, res, next) => {
     await user.getTopWriters({ limit: limit || 10, page: limit * page || 0 })
         .then(([writers, fieldData]) => {
             let newArray = [...writers]
-            newArray = newArray?.length && newArray?.map((e) => {
-                return {
-                    ...e,
-                    rating: e?.rating < 3 || e.rating === null ? 3 : e?.rating,
-                }
-            })
+            newArray = newArray?.length && newArray?.map((e) => ({
+                ...e,
+                rating: e?.rating < 3 || e.rating === null ? 3 : e?.rating,
+
+            }))
 
             data = { ...data, data: newArray, total: writers?.length ? writers[0]['total'] : 0 }
             res.status(200).send({
