@@ -27,7 +27,6 @@ const fileStorage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    // cb(null, file.fieldname + '-' + uniqueSuffix)
     cb(null, `${uniqueSuffix}-${file.originalname}`)
   }
 });
@@ -65,7 +64,8 @@ app.use(session({
 }))
 app.use(compression())
 
-app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
+
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).array('image',4));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);

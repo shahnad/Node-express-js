@@ -49,7 +49,7 @@ exports.login = (req, res, next) => {
 // signup
 exports.signUp = async (req, res, next) => {
     const { email, password, username } = req.body
-    const imageFile = req.file || {}
+    const imageFile = req.files[0] || {}
    
     let result = {}
     let imagePath = "";

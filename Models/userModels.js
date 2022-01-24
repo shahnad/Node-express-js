@@ -16,10 +16,14 @@ module.exports = class userModel {
     }
 
     // update user
+
+    // bio gender id phone userName profilePic coverPic
     updateUserProfile(data) {
-        const { email, password, gender, id } = data
-        const query = `UPDATE users SET email = ?, password = ?, gender = ?, updated_at = ? WHERE _id = ?`
-        return db.execute(query, [email, password, gender, new Date(), id])
+        const { bio, phone, gender, id, userName, profilePic, coverPic } = data
+        console.log(data,"aaaaaaaaaaaa");
+        const query = `UPDATE users SET bio = ?, phone = ?, gender = ?, username = ? ,updated_at = ? ,
+        coverPic = ?, profile_pic = ? WHERE _id = ?`
+        return db.execute(query, [bio, phone, gender, userName, new Date(), coverPic, profilePic, id])
     }
     // user delete
     deleteUser(data) {

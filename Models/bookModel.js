@@ -29,11 +29,9 @@ module.exports = class bookModel {
 
 
     getEpisodeByBook = (params) => {
-        const { bookId, limit, offset } = params
-        const query = `SELECT episodes._id,episodes.book_id,episodes.content,
-        episodes.duration,episodes.created_at,reading.views FROM episodes  INNER JOIN reading ON episodes._id = reading.episode_id 
-        WHERE episodes.book_id = ? `
-        return db.execute(query, [bookId])
+        const { episodeId } = params
+        const query = `SELECT content,book_id ,episode_no,(SELECT title FROM books WHERE id = book_id) as title FROM episodes WHERE _id = ${episodeId}`
+        return db.execute(query)
     }
 
     getBooksById = (params) => {

@@ -1,13 +1,16 @@
 const userModel = require('../Models/userModels');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const util = require('util');
+const { uploadFile } = require('../s3_config')
+const unlinkFile = util.promisify(fs.unlink)
 const bookModel = require('../Models/bookModel');
 const crypto = require('../crypto/index');
-const { log } = require('console');
 const user = new userModel()
 const moment = require('moment');
 const book = new bookModel()
 require('dotenv').config()
+const base_url = process.env.BASE_URL
 
 // GET USER
 exports.getUsers = async (req, res, next) => {
@@ -33,33 +36,45 @@ exports.getUsers = async (req, res, next) => {
 }
 
 // UPDATE USER 
-exports.updateUser = (req, res, next) => {
-    const { email, password, gender } = req.body
+exports.updateUser = async (req, res, next) => {
+    const { bio, gender, phone, userName } = req.body
     const { userId } = req.query
+    const { files } = req
+    let data = {}
+    let imagePath = []
+    let profilePic = ""
+    coverPic = ""
 
-    if (!userId) {
-        res.status(404).send({ message: "User id is required*", status: 404 })
-    } else {
-        return bcrypt.hash(password, 12).then((hash) => {
-            user.findOneById({ id: userId }).then(([data, fieldData]) => {
-                if (data?.length) {
-                    user.updateUserProfile({ email, password: hash, gender, id: userId }).then(([rows, fieldData]) => {
-                        res.status(200).send({
-                            data: { email, password: hash, gender }, message: 'User Updated Successfully!', status: 200
-                        })
-                    }).catch((error) => {
-                        res.status(500).send({ error: error })
-                    })
-                } else {
-                    res.status(404).send({ message: "User Not Exist", status: 404 })
-                }
-            }).catch((error) => {
-                res.status(404).send({ error: error?.message, status: 404 })
-            })
-        }).catch((error) => {
-            res.status(500).send({ error: error?.message, status: 500 })
-        })
-    }
+
+
+
+    const promise = files.map(async (file) => {
+        result = await uploadFile(file)
+        await unlinkFile(file.path)
+        await imagePath.push({ url: `${base_url}/images/${result?.key}`, name: file.originalname })
+
+    })
+    await Promise.all(promise);
+
+    await user.updateUserProfile({
+        bio: bio || '',
+        gender: gender || '',
+        id: userId,
+        phone: phone || '',
+        userName: userName || '',
+        profilePic:imagePath?.length > 0 ? imagePath[0]?.url :'' ,
+        coverPic:imagePath?.length > 1 ? imagePath[1]?.url :''
+
+    }).then(([rows, fieldData]) => {
+        data = {
+            message: 'OK',
+            status: 200
+        }
+        res.status(200).send({ data })
+    }).catch((error) => {
+        res.status(404).send({ error: error?.message, status: 404 })
+    })
+
 }
 
 // DELETE USER

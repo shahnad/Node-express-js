@@ -6,8 +6,9 @@ const isAuth = require('../middleware/is-auth')
 /* GET users listing. */
 router.get('/', isAuth, userCtrl.getUsers);
 
+// isAuth
 // UPDATE USER
-router.put('/user/updateUser', isAuth, userCtrl.updateUser)
+router.put('/updateUser',  userCtrl.updateUser)
 
 // DELETE USER
 router.delete('/user/deleteUser', isAuth, userCtrl.deleteUser)

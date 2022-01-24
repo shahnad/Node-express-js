@@ -12,7 +12,7 @@ const base_url = process.env.BASE_URL
 
 exports.createBook = async (req, res, next) => {
     const { title, category, type, userid } = req.body
-    const imageFile = req.file || {}
+    const imageFile = req.files[0] || {}
 
     let result = {}
     let imagePath = "";
@@ -22,8 +22,7 @@ exports.createBook = async (req, res, next) => {
         await unlinkFile(imageFile.path)
         imagePath = `${base_url}/images/${result?.key}`
     }
-    console.log(title, imagePath, category, type, userid);
-
+   
     await book.createNewBook({ title, imageurl: imagePath, category, type, userid })
         .then(([rows], fieldData) => {
             res.status(200).send({
@@ -92,21 +91,22 @@ exports.rateEpisode = (req, res, next) => {
 }
 
 exports.getEpisodeByBook = async (req, res, next) => {
-    const { bookId, limit, offset } = req.query
+    const { episodeId, } = req.query
     let data = {}
-    await book.getEpisodeByBook({ bookId, limit: limit || 10, offset: offset || 1 })
+
+    await book.getEpisodeByBook({ episodeId })
         .then(([rows], fieldData) => {
-            const encryptContent = rows?.length > 0 && rows?.map((item, i) => ({
-                ...item,
-                content: item.content?.split(' '),
-            }))
-            data = { ...data, episodes: encryptContent }
-            if (!res.headersSent)
-                res.status(200).send({
-                    message: 'OK',
-                    data: data || {},
-                    status: 200
-                })
+            let newArray = [...rows]
+            // newArray = newArray?.length > 0 && newArray?.map((item, i) => ({
+            //     ...item,
+            //     content: item.content?.split(' '),
+            // }))
+            data = { ...data, data: newArray }
+            res.status(200).send({
+                message: 'OK',
+                data: data || {},
+                status: 200
+            })
 
         }).catch((error) => {
             console.log(error);
