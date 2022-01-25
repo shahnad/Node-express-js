@@ -50,7 +50,7 @@ exports.login = (req, res, next) => {
 exports.signUp = async (req, res, next) => {
     const { email, password, username } = req.body
     const imageFile = req.files[0] || {}
-   
+
     let result = {}
     let imagePath = "";
 
@@ -73,7 +73,7 @@ exports.signUp = async (req, res, next) => {
                         user.userSignUp({
                             email,
                             password: hash,
-                            profile_pic:imagePath,
+                            profile_pic: imagePath,
                             username
                         })
                             .then(([resAray, fieldResData]) => {
@@ -91,7 +91,7 @@ exports.signUp = async (req, res, next) => {
                                     }, status: 200
                                 })
                             }).catch((error) => {
-                               res.status(404).send({
+                                res.status(404).send({
                                     message: error.message,
                                     status: 404
                                 })
@@ -142,22 +142,43 @@ exports.booksandwriters = async (req, res, next) => {
     const { search, limit, page } = req.query
     let data = {}
 
-    await auth.searchBooks({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
-        data = { ...data, book: { data: result, total: result?.length ? result[0]['total'] : 0 } }
+    await auth.searchBooks({ search, limit: limit || 10, page: limit * page || 0 })
+        .then(([result, fieldResData]) => {
+            let newArray = [...result]
+            newArray = newArray?.length && newArray.map((item) => ({
+                ...item,
+                rating: item.rating < 3 || item.rating === null ? 3 : item.rating,
+            }))
+            data = {
+                ...data, book: {
+                    data: newArray,
+                    total: result?.length ? result[0]['total'] : 0
+                }
+            }
 
-    }).catch((error) => console.error(error))
+        }).catch((error) => console.error(error))
 
 
-    await auth.searchWriters({ search, limit: limit || 10, page: limit * page || 0 }).then(([result, fieldResData]) => {
+    await auth.searchWriters({ search, limit: limit || 10, page: limit * page || 0 })
+        .then(([result, fieldResData]) => {
+            let newArray = [...result]
+            newArray = newArray?.length && newArray.map((item) => ({
+                ...item,
+                rating: item.rating < 3 || item.rating === null ? 3 : item.rating,
+            }))
+            data = {
+                ...data, writer: {
+                    data: newArray,
+                    total: result?.length ? result[0]['total'] : 0
+                }
+            }
+            res.status(200).send({ message: 'OK', status: 200, data })
+        }).catch((error) => {
 
-        data = { ...data, writer: { data: result, total: result?.length ? result[0]['total'] : 0 } }
-        res.status(200).send({ message: 'OK', status: 200, data })
-    }).catch((error) => {
+            res.status(404).send({
+                message: error?.message,
 
-        res.status(404).send({
-            message: error?.message,
-
+            })
         })
-    })
 
 }

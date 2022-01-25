@@ -9,7 +9,7 @@ module.exports = class bookModel {
     createNewBook(params) {
         const { title, imageurl, category, type, userid } = params
         const query = `INSERT INTO books (title, imageurl,category,userid, type,  created_at, updated_at) VALUES (?,?,?,?,?,?,?)`
-        return db.execute(query, [title, imageurl, category, type, userid, new Date(), new Date()])
+        return db.execute(query, [title, imageurl, category,userid,  type, new Date(), new Date()])
     }
 
     addNewEpisode(params) {
@@ -145,7 +145,8 @@ module.exports = class bookModel {
     }
     getUserWrirings = (params) => {
         const { user_id, limit, page } = params
-        const query = `SELECT DISTINCT id ,COUNT(id) OVER()  as total,  imageurl as image ,title, type,price ,
+        const query = `SELECT DISTINCT id ,COUNT(id) OVER()  as total,
+          imageurl as image ,title, type,price ,
         (SELECT AVG(rate) FROM rating WHERE rating.id = id) as rating,
         (SELECT COUNT(id) FROM reading WHERE reading.book_id = id) as views,
         (SELECT SUM(duration) FROM episodes WHERE episodes.book_id = id) AS duration,

@@ -16,7 +16,6 @@ const s3 = new S3({
 // uploads a file to s3
 function uploadFile(file) {
   const fileStream = fs.createReadStream(file.path)
-
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
@@ -38,4 +37,16 @@ function getFileStream(fileKey) {
   return s3.getObject(downloadParams).createReadStream()
 }
 exports.getFileStream = getFileStream
-// Set the AWS Region.
+
+
+const deleteImage = function(filename, callback) {
+ 
+  const params = {
+    Bucket: bucketName,
+    Key: filename
+  };
+
+  return s3.deleteObject(params).promise()
+
+}
+exports.deleteImage = deleteImage

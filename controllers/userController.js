@@ -45,9 +45,6 @@ exports.updateUser = async (req, res, next) => {
     let profilePic = ""
     coverPic = ""
 
-
-
-
     const promise = files.map(async (file) => {
         result = await uploadFile(file)
         await unlinkFile(file.path)
