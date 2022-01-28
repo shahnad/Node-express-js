@@ -48,8 +48,10 @@ exports.createBook = async (req, res, next) => {
 exports.addEpisode = async (req, res, next) => {
 
     const { episode_no, book_id, content } = req.body
-    const time = Math.floor(content?.length / 0.01)
-    const duration = time / 60 / 60
+    const words = content.trim().split(/\s+/).length;
+
+    const duration =   Math.ceil(words / 225)
+
 
     await book.addNewEpisode({ episode_no, book_id, content, duration })
         .then(([rows], fieldData) => {

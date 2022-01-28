@@ -3,52 +3,42 @@ var router = express.Router();
 const userCtrl = require('../controllers/userController')
 const isAuth = require('../middleware/is-auth')
 
-/* GET users listing. */
 router.get('/', isAuth, userCtrl.getUsers);
 
-// isAuth
-// UPDATE USER
-router.put('/updateUser',  userCtrl.updateUser)
+router.put('/updateUser', isAuth, userCtrl.updateUser)
 
-// DELETE USER
+router.post('/uploadProfileImage', isAuth, userCtrl.uploadProfileImage)
+
+router.post('/uploadCoverImage', isAuth, userCtrl.uploadCoverImage)
+
 router.delete('/user/deleteUser', isAuth, userCtrl.deleteUser)
 
-// FOLLOW USER
 router.post('/followUser', isAuth, userCtrl.followUser)
 
 
-// Get User By Ids
 router.get('/getUsersByIds', isAuth, userCtrl.getUserByIds)
 
 
-// Get USER PROFILE
 router.get('/getUserProfile', isAuth, userCtrl.getUserProfile)
 
-// Get USER PROFILE
-router.get('/getWriterProfile',  userCtrl.getWriterProfile)
+
+router.get('/getWriterProfile', userCtrl.getWriterProfile)
 
 
-
-// Post USER PROFILE
 router.post('/visitProfile', isAuth, userCtrl.visitProfile)
 
 
-//Get Premium Writers
-router.get('/getPremiumWriters',  userCtrl.getPremiumWriters)
+router.get('/getPremiumWriters', userCtrl.getPremiumWriters)
 
 
-
-//Get Premium Writers
-router.get('/getFounderWriters',  userCtrl.getFounderWriters)
-
-//Get Top Writers
-router.get('/getTopWriters',  userCtrl.getTopWriters)
+router.get('/getFounderWriters', userCtrl.getFounderWriters)
 
 
-//Get Top Writers
+router.get('/getTopWriters', userCtrl.getTopWriters)
+
+
 router.get('/getuserFollowers', isAuth, userCtrl.getUserFollowers)
 
-//Get Top Writers
 router.get('/getuserFollowings', isAuth, userCtrl.getUserFollowings)
 
 router.get('/getuserWritings', isAuth, userCtrl.getuserWritings)
@@ -67,7 +57,5 @@ router.get('/getUserBooksById', userCtrl.getUserBooksById);
 
 router.get('/starWriters', userCtrl.starWriters);
 
-// 
-// getUserBook
 
 module.exports = router;

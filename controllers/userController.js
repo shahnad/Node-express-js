@@ -34,38 +34,96 @@ exports.getUsers = async (req, res, next) => {
         res.status(500).send({ error: error, status: 500 })
     })
 }
+// cover image upload
+exports.uploadCoverImage = async (req, res, next) => {
+    const { files } = req
+    const { userId } = req.query
+    let data = {}
+    let imagePath = ""
+
+    if (!userId) {
+        res.status(404).send({ error: "User id is not found", status: 404 })
+    }
+
+    if (!files?.length) {
+        res.status(404).send({ error: "Image is not found", status: 404 })
+
+    } else {
+        result = await uploadFile(files[0])
+        await unlinkFile(files[0].path)
+        imagePath = `${base_url}/images/${result?.key}`
+
+        await user.updateUserCoverImage({
+            coverPic: imagePath, id: userId
+        }).then(([resultData, fieldData]) => {
+            data = {
+                message: 'OK',
+                status: 200,
+                coverImage: imagePath
+            }
+            res.status(200).send({ data })
+
+        }).catch((error) => {
+            res.status(404).send({ error: error?.message, status: 404 })
+        })
+    }
+}
+//profile image upload 
+
+exports.uploadProfileImage = async (req, res, next) => {
+    const { files } = req
+    const { userId } = req.query
+    let data = {}
+    let imagePath = ""
+
+    if (!userId) {
+        res.status(404).send({ error: "User id is not found", status: 404 })
+    }
+
+    if (!files?.length) {
+        res.status(404).send({ error: "Image is not found", status: 404 })
+    } else {
+        result = await uploadFile(files[0])
+        await unlinkFile(files[0].path)
+        imagePath = `${base_url}/images/${result?.key}`
+        await user.updateUserProfileImage({
+            profilePic: imagePath, id: userId
+        }).then(([resultData, fieldData]) => {
+            data = {
+                message: 'OK',
+                status: 200,
+                profileImage: imagePath
+            }
+            res.status(200).send({ data })
+
+        }).catch((error) => {
+            res.status(404).send({ error: error?.message, status: 404 })
+        })
+    }
+}
+
+
 
 // UPDATE USER 
 exports.updateUser = async (req, res, next) => {
     const { bio, gender, phone, userName } = req.body
     const { userId } = req.query
-    const { files } = req
+
     let data = {}
-    let imagePath = []
-    let profilePic = ""
-    coverPic = ""
 
-    const promise = files.map(async (file) => {
-        result = await uploadFile(file)
-        await unlinkFile(file.path)
-        await imagePath.push({ url: `${base_url}/images/${result?.key}`, name: file.originalname })
-
-    })
-    await Promise.all(promise);
-
+    if (!userId) {
+        res.status(404).send({ error: "User id is not found", status: 404 })
+    }
     await user.updateUserProfile({
         bio: bio || '',
         gender: gender || '',
         id: userId,
         phone: phone || '',
         userName: userName || '',
-        profilePic:imagePath?.length > 0 ? imagePath[0]?.url :'' ,
-        coverPic:imagePath?.length > 1 ? imagePath[1]?.url :''
-
     }).then(([rows, fieldData]) => {
         data = {
             message: 'OK',
-            status: 200
+            status: 200,
         }
         res.status(200).send({ data })
     }).catch((error) => {

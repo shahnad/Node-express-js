@@ -19,12 +19,27 @@ module.exports = class userModel {
 
     // bio gender id phone userName profilePic coverPic
     updateUserProfile(data) {
-        const { bio, phone, gender, id, userName, profilePic, coverPic } = data
-        console.log(data,"aaaaaaaaaaaa");
-        const query = `UPDATE users SET bio = ?, phone = ?, gender = ?, username = ? ,updated_at = ? ,
-        coverPic = ?, profile_pic = ? WHERE _id = ?`
-        return db.execute(query, [bio, phone, gender, userName, new Date(), coverPic, profilePic, id])
+        const { bio, phone, gender, id, userName } = data
+        const query = `UPDATE users SET bio = ?, phone = ?, gender = ?, username = ? ,updated_at = ? 
+         WHERE _id = ?`
+        return db.execute(query, [bio, phone, gender, userName, new Date(), id])
     }
+
+
+    updateUserCoverImage(data) {
+        const { coverPic, id } = data
+        const query = `UPDATE users SET coverPic = ?, updated_at = ? WHERE _id = ?`
+        return db.execute(query, [coverPic, new Date(), id])
+    }
+
+    updateUserProfileImage(data) {
+        const { profilePic, id } = data
+        const query = `UPDATE users SET profile_pic = ?, updated_at = ? WHERE _id = ?`
+        return db.execute(query, [profilePic, new Date(), id])
+    }
+
+
+
     // user delete
     deleteUser(data) {
         const { id } = data
@@ -76,6 +91,8 @@ module.exports = class userModel {
         username as userName,
         profile_pic as image,
         bio,
+        gender,
+        phone,
         coverPic,
         (SELECT AVG(rate) FROM rating WHERE book_id = ${user_id}) AS rating,
         (SELECT COUNT(follower_id) FROM followers WHERE followers.follower_id = ${user_id}) AS followers,
